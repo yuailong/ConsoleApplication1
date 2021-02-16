@@ -220,7 +220,7 @@ void PEStruct::printNTHeaders(){
 	mzStr[1] = ((char*)pDosHeader)[1];
 	mzStr[2] = '\0';
 	printf("MZ标志：0x%X（%s）\n", pDosHeader->e_magic, mzStr);
-	printf("PE偏移：0x%X\n----------------------------------------\n", pDosHeader->e_lfanew);
+	printf("PE偏移：0x%X\n----------------------------------------\n\n", pDosHeader->e_lfanew);
 
 	//打印NT头	
 	printf("* NT头：\n");
@@ -230,19 +230,19 @@ void PEStruct::printNTHeaders(){
 	peStr[2] = ((char*)pNTHeader)[2];
 	peStr[3] = ((char*)pNTHeader)[3];
 	peStr[4] = '\0';
-	printf("PE标志：0x%08X（%s）\n----------------------------------------\n", pNTHeader->Signature, peStr);
+	printf("PE标志：0x%08X（%s）\n----------------------------------------\n\n", pNTHeader->Signature, peStr);
 
 	//PE头
 	printf("* PE头：\n");
 	printf("pPEHeader->Machine :0x%X (表示程序可以运行在什么CPU上  0x0：任意CPU  0x14C：Intel386及以后的CPU  0x8664：x64的CPU)\n", pPEHeader->Machine);
 	printf("节的数量：%x\n", pPEHeader->NumberOfSections);
-	printf("扩展PE头的大小：0x%X\n----------------------------------------\n", pPEHeader->SizeOfOptionalHeader);
+	printf("扩展PE头的大小：0x%X\n----------------------------------------\n\n", pPEHeader->SizeOfOptionalHeader);
 
 	//扩展PE头	
 	printf("* 扩展PE头：\n");
 	cout << "内存对齐:" << pOptionHeader->SectionAlignment << endl;
 	cout << "文件对齐:" << pOptionHeader->FileAlignment << endl;
-	printf("Magic：0x%X (表示程序是32位或者64位的，   0x10B：32位    0x20B：64位)\n----------------------------------------\n", pOptionHeader->Magic);
+	printf("Magic：0x%X (表示程序是32位或者64位的，   0x10B：32位    0x20B：64位)\n----------------------------------------\n\n", pOptionHeader->Magic);
 }
 
 void PEStruct::printTables(){
@@ -269,13 +269,13 @@ void PEStruct::printExportTable(){
 	for(unsigned int i = 0; i < pExportTable->NumberOfNames; i++){
 		DWORD RVA_name = *(pNames++);
 		char* FOA_name = (char*)(getFOA(RVA_name) + fileBuffer);
-		printf("(%d) 序号：%X, 地址：%X, 函数名字：%s\n", i, pOdinals[i], pAddr[pOdinals[i]], FOA_name);
+		printf("第%d个函数，序号：%X, 地址：%X, 函数名字：%s", i+1, pOdinals[i], pAddr[pOdinals[i]], FOA_name);
 		if(i >= 10){
 			printf("...\n");
 			break;
 		}
 	}
-	printf("\n----------------------------------------\n");
+	printf("\n----------------------------------------\n\n");
 }
 
 //获取导入表对应的模块名
