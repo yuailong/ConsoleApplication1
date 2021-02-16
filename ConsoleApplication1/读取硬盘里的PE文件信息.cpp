@@ -31,14 +31,14 @@ private:
 	/*
 	* 各种表
 	*/
-	PIMAGE_EXPORT_DIRECTORY pExportTable = NULL;//导出表FOA
-	UINT64   FOA_AddressOfFunctions;     // 导出函数地址FOA
-	UINT64   FOA_AddressOfNames;         // 导出函数名字表FOA
-	UINT64   FOA_AddressOfNameOrdinals;  // 导出函数序号表FOA         
-	PIMAGE_IMPORT_DESCRIPTOR pImportTable = NULL;//导入表FOA
-	PIMAGE_BASE_RELOCATION pRelocTable = NULL;//导入表FOA
-	size_t numOfImportTable = 0;//导入表的数量
-	size_t numOfRelocTable = 0;//重定位表的数量
+	PIMAGE_EXPORT_DIRECTORY pExportTable = NULL;//导出表
+	UINT64   FOA_AddressOfFunctions;     // 导出函数地址
+	UINT64   FOA_AddressOfNames;         // 导出函数名字表
+	UINT64   FOA_AddressOfNameOrdinals;  // 导出函数序号表      
+	PIMAGE_IMPORT_DESCRIPTOR pImportTable = NULL;//导入表
+	PIMAGE_BASE_RELOCATION pRelocTable = NULL;//重定位表
+	UINT64 numOfImportTable = 0;//导入表的数量
+	UINT64 numOfRelocTable = 0;//重定位表的数量
 
 	//根据RVA获取FOA
 	UINT64 getFOA(UINT64 RVA);
@@ -128,7 +128,7 @@ bool PEStruct::ReadPEFile(){
 	//将文件数据读取到缓冲区	
 	size_t n = fread((void*)fileBuffer, fileSize, 1, file);
 	/*
-	if(!n){
+	if(n != 1){
 		printf(" 读取数据失败! ");
 		free((void*)fileBuffer);
 		fclose(file);
@@ -206,10 +206,13 @@ void PEStruct::getRelocTableInformation(){
 	UINT64 FOA_relocTable = getFOA(RVA_relocTable);//重定位表FOA
 	pRelocTable = (PIMAGE_BASE_RELOCATION)(FOA_relocTable + fileBuffer);
 
-	/*
-	计算重定位表的个数
-	*/
-
+	//计算重定位表的个数
+	PIMAGE_BASE_RELOCATION temp = pRelocTable;
+	while(temp->VirtualAddress != 0 ||
+		  temp->SizeOfBlock != 0){
+		numOfRelocTable++;
+		temp = (PIMAGE_BASE_RELOCATION)(((char*)temp) + temp->SizeOfBlock);
+	}
 }
 
 void PEStruct::printNTHeaders(){
@@ -220,7 +223,8 @@ void PEStruct::printNTHeaders(){
 	mzStr[1] = ((char*)pDosHeader)[1];
 	mzStr[2] = '\0';
 	printf("MZ标志：0x%X（%s）\n", pDosHeader->e_magic, mzStr);
-	printf("PE偏移：0x%X\n----------------------------------------\n\n", pDosHeader->e_lfanew);
+	printf("PE偏移：0x%X\n", pDosHeader->e_lfanew);
+	printf("\n----------------------------------------\n\n");
 
 	//打印NT头	
 	printf("* NT头：\n");
@@ -230,19 +234,22 @@ void PEStruct::printNTHeaders(){
 	peStr[2] = ((char*)pNTHeader)[2];
 	peStr[3] = ((char*)pNTHeader)[3];
 	peStr[4] = '\0';
-	printf("PE标志：0x%08X（%s）\n----------------------------------------\n\n", pNTHeader->Signature, peStr);
+	printf("PE标志：0x%08X（%s）\n", pNTHeader->Signature, peStr);
+	printf("\n----------------------------------------\n\n");
 
 	//PE头
 	printf("* PE头：\n");
 	printf("pPEHeader->Machine :0x%X (表示程序可以运行在什么CPU上  0x0：任意CPU  0x14C：Intel386及以后的CPU  0x8664：x64的CPU)\n", pPEHeader->Machine);
 	printf("节的数量：%x\n", pPEHeader->NumberOfSections);
-	printf("扩展PE头的大小：0x%X\n----------------------------------------\n\n", pPEHeader->SizeOfOptionalHeader);
+	printf("扩展PE头的大小：0x%X\n", pPEHeader->SizeOfOptionalHeader);
+	printf("\n----------------------------------------\n\n");
 
 	//扩展PE头	
 	printf("* 扩展PE头：\n");
 	cout << "内存对齐:" << pOptionHeader->SectionAlignment << endl;
 	cout << "文件对齐:" << pOptionHeader->FileAlignment << endl;
-	printf("Magic：0x%X (表示程序是32位或者64位的，   0x10B：32位    0x20B：64位)\n----------------------------------------\n\n", pOptionHeader->Magic);
+	printf("Magic：0x%X (表示程序是32位或者64位的，   0x10B：32位    0x20B：64位)\n", pOptionHeader->Magic);
+	printf("\n----------------------------------------\n\n");
 }
 
 void PEStruct::printTables(){
@@ -254,7 +261,7 @@ void PEStruct::printTables(){
 void PEStruct::printExportTable(){
 	printf("* 导出表：\n");
 	if(!pExportTable){
-		printf("没有导出表\n----------------------------------------\n");
+		printf("没有导出表\n----------------------------------------\n\n");
 		return;
 	}
 	printf("导出函数名：\n");
@@ -269,7 +276,7 @@ void PEStruct::printExportTable(){
 	for(unsigned int i = 0; i < pExportTable->NumberOfNames; i++){
 		DWORD RVA_name = *(pNames++);
 		char* FOA_name = (char*)(getFOA(RVA_name) + fileBuffer);
-		printf("第%d个函数，序号：%X, 地址：%X, 函数名字：%s", i+1, pOdinals[i], pAddr[pOdinals[i]], FOA_name);
+		printf("第%d个函数，序号：%X, 地址：%X, 函数名字：%s", i + 1, pOdinals[i], pAddr[pOdinals[i]], FOA_name);
 		if(i >= 10){
 			printf("...\n");
 			break;
@@ -299,7 +306,7 @@ void PEStruct::printImportTable(){
 		//打印函数，最多打印3个好了
 		this->printImportFunc(pINT, numOfFunc < 3 ? numOfFunc : 3);
 	}
-	printf("\n----------------------------------------\n");
+	printf("\n----------------------------------------\n\n");
 }
 
 //计算有多少个函数
@@ -334,5 +341,24 @@ void PEStruct::printImportFunc(PIMAGE_THUNK_DATA pINT, size_t numPrint){
 }
 
 void PEStruct::printRelocTable(){
-
+	printf("* 重定位表：\n");
+	printf("有%I64u个重定位表\n", numOfRelocTable);
+	PIMAGE_BASE_RELOCATION temp = pRelocTable;
+	for(size_t i = 0; i < numOfRelocTable; i++){
+		//计算有几个地址
+		UINT64 numAddr = (temp->SizeOfBlock - 8) / 2;
+		printf("    第%I64u个重定位表, VirtualAddress : 0x%X, SizeOfBlock : 0x%X, %I64u个地址：\n    ", i + 1, temp->VirtualAddress, temp->SizeOfBlock, numAddr);
+		for(size_t j = 0; j < numAddr; j++){
+			WORD addr = ((WORD*)((char*)temp + 8))[j];
+			//判断这个地址是否需要修改，看高4位是否等于3
+			bool isNeedReloc = addr >> 12 == IMAGE_REL_BASED_HIGHLOW ? true : false;
+			printf("0x%X, %s    ", addr, isNeedReloc ? "需要修改" : "不需要修改");
+			if((j + 1) % 3 == 0){
+				printf("\n    ");
+			}
+		}
+		temp = (PIMAGE_BASE_RELOCATION)((char*)temp + temp->SizeOfBlock);
+		printf("\n\n");
+	}
+	printf("\n----------------------------------------\n\n");
 }
