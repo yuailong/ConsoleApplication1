@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "使用动态链接库", "�
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "读写段寄存器", "读写段寄存器\读写段寄存器.vcxproj", "{1AD738EB-8D7A-4F81-927A-7280C895F880}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "鼠标", "鼠标\鼠标.vcxproj", "{0B850831-F253-45E3-9BDD-3F2BCB0EED67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -131,6 +133,14 @@ Global
 		{1AD738EB-8D7A-4F81-927A-7280C895F880}.Release|x64.Build.0 = Release|x64
 		{1AD738EB-8D7A-4F81-927A-7280C895F880}.Release|x86.ActiveCfg = Release|Win32
 		{1AD738EB-8D7A-4F81-927A-7280C895F880}.Release|x86.Build.0 = Release|Win32
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Debug|x64.ActiveCfg = Debug|x64
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Debug|x64.Build.0 = Debug|x64
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Debug|x86.ActiveCfg = Debug|Win32
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Debug|x86.Build.0 = Debug|Win32
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Release|x64.ActiveCfg = Release|x64
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Release|x64.Build.0 = Release|x64
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Release|x86.ActiveCfg = Release|Win32
+		{0B850831-F253-45E3-9BDD-3F2BCB0EED67}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
