@@ -113,7 +113,7 @@ int main(){
 		}
 		else if(team2KeyStateBefore && !team2KeyStateAfter){
 			selectedTeam = 1;
-			printf("已切换到二队：EA、EA、刻晴、琴\n");
+			printf("已切换到二队：EA、琴、刻晴、EA\n");
 		}
 		else if(team3KeyStateBefore && !team3KeyStateAfter){
 			selectedTeam = 2;
@@ -279,13 +279,13 @@ void funcForTeam2(){
 	}
 
 	if(!key2StateBefore && key2StateAfter){
-		E_A_Down(SelectedCharacter2_E_A);
+		keqingDown();
 	}
 	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold(SelectedCharacter2_E_A);
+		keqingHold();
 	}
 	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up(SelectedCharacter2_E_A);
+		keqingUp();
 	}
 
 	if(!key3StateBefore && key3StateAfter){
@@ -299,13 +299,13 @@ void funcForTeam2(){
 	}
 
 	if(!key4StateBefore && key4StateAfter){
-		keqingDown();
+		E_A_Down(SelectedCharacter4_E_A);
 	}
 	else if(key4StateBefore && key4StateAfter){
-		keqingHold();
+		E_A_Hold(SelectedCharacter4_E_A);
 	}
 	else if(key4StateBefore && !key4StateAfter){
-		keqingUp();
+		E_A_Up(SelectedCharacter4_E_A);
 	}
 }
 
