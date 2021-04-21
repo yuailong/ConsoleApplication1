@@ -20,16 +20,30 @@
 
 
 //当前角色
+#define SelectedCharacter_Diluke 101		//迪卢克
+#define SelectedCharacter_Keqing 102		//刻晴
+#define SelectedCharacter_Qin 103			//琴
 #define SelectedCharacter1_E_A 1001			//在1号位的，有E用E的，没E普攻的角色
 #define SelectedCharacter2_E_A 1002			//在2号位的，有E用E的，没E普攻的角色
 #define SelectedCharacter3_E_A 1003			//在3号位的，有E用E的，没E普攻的角色
 #define SelectedCharacter4_E_A 1004			//在4号位的，有E用E的，没E普攻的角色
-#define SelectedCharacter_Diluke 104			//迪卢克AEAEAE
-#define SelectedCharacter_Keqing 203			//刻晴EE重击重击重击...
+#define SelectedCharacter_LongE 1005		//长按E的角色
+
+
 
 bool kaiguan = 1;
-int selectedTeam = 0;//0代表第一队，1代表第二队...
-int selectedCharacter = SelectedCharacter1_E_A;
+int selectedCharacterBefore = SelectedCharacter1_E_A;
+int selectedCharacterAfter = SelectedCharacter1_E_A;
+int team1[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter_Diluke };
+int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter_Qin, SelectedCharacter_Keqing, SelectedCharacter4_E_A };
+int team3[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A };
+int team4[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A };
+int(*pSelectedTeam)[4] = &team1;
+
+#define 切换到一队输出的文本 "已切换到一队：EA、EA、EA、迪卢克\n"
+#define 切换到二队输出的文本 "已切换到二队：EA、琴、刻晴、EA\n"
+#define 切换到三队输出的文本 "已切换到三队：EA、EA、EA、迪卢克\n"
+#define 切换到四队输出的文本 "已切换到四队：EA、EA、EA、迪卢克\n"
 
 SHORT kaiguanKeyStateBefore = 0;
 SHORT key1StateBefore = 0;
@@ -55,26 +69,25 @@ SHORT mouseSideKey2StateAfter = 0;
 
 DWORD beginTimeLongE = 0;
 
-void keqingDown();//按下
-void keqingHold();//按住
-void keqingUp();//弹起
+void keyDown(int willSelecteCharacter);
+void keyHold(int willSelecteCharacter);
+void keyUp(int willSelecteCharacter);
 
-void longE_Down();//按下
-void longE_Hold();//按住
-void longE_Up();//弹起
+void keqingDown(int willSelecteCharacter);//按下
+void keqingHold(int willSelecteCharacter);//按住
+void keqingUp(int willSelecteCharacter);//弹起
 
-void dilukeDown();//按下
-void dilukeHold();//按住
-void dilukeUp();//弹起
+void longE_Down(int willSelecteCharacter);//按下
+void longE_Hold(int willSelecteCharacter);//按住
+void longE_Up(int willSelecteCharacter);//弹起
 
-void E_A_Down(int ordinal);//按下
-void E_A_Hold(int ordinal);//按住
-void E_A_Up(int ordinal);//弹起
+void dilukeDown(int willSelecteCharacter);//按下
+void dilukeHold(int willSelecteCharacter);//按住
+void dilukeUp(int willSelecteCharacter);//弹起
 
-void funcForTeam1();
-void funcForTeam2();
-void funcForTeam3();
-void funcForTeam4();
+void E_A_Down(int willSelecteCharacter);//按下
+void E_A_Hold(int willSelecteCharacter);//按住
+void E_A_Up(int willSelecteCharacter);//弹起
 
 int main(){
 	/*
@@ -90,7 +103,7 @@ int main(){
 		kaiguanKeyStateAfter = GetAsyncKeyState(开关键_F8_虚拟码);
 		if(kaiguanKeyStateBefore && !kaiguanKeyStateAfter){//正在抬起开关键
 			kaiguan = !kaiguan;
-			printf(kaiguan? "已开启\n" : "已关闭\n");
+			printf(kaiguan ? "已开启\n" : "已关闭\n");
 		}
 		kaiguanKeyStateBefore = kaiguanKeyStateAfter;
 		if(!kaiguan){
@@ -108,109 +121,74 @@ int main(){
 		mouseSideKey2StateAfter = GetAsyncKeyState(VK_XBUTTON1);
 
 		if(team1KeyStateBefore && !team1KeyStateAfter){
-			selectedTeam = 0;
-			printf("已切换到一队：EA、EA、EA、迪卢克\n");
+			pSelectedTeam = &team1;
+			printf(切换到一队输出的文本);
 		}
 		else if(team2KeyStateBefore && !team2KeyStateAfter){
-			selectedTeam = 1;
-			printf("已切换到二队：EA、琴、刻晴、EA\n");
+			pSelectedTeam = &team2;
+			printf(切换到二队输出的文本);
 		}
 		else if(team3KeyStateBefore && !team3KeyStateAfter){
-			selectedTeam = 2;
-			printf("已切换到三队：EA、EA、EA、EA\n");
+			pSelectedTeam = &team3;
+			printf(切换到三队输出的文本);
 		}
 		else if(team4KeyStateBefore && !team4KeyStateAfter){
-			selectedTeam = 3;
-			printf("已切换到四队：EA、EA、EA、EA\n");
+			pSelectedTeam = &team4;
+			printf(切换到四队输出的文本);
 		}
 
-		switch(selectedTeam){
-		case 0:
-			funcForTeam1();
-			break;
-		case 1:
-			funcForTeam2();
-			break;
-		case 2:
-			funcForTeam3();
-			break;
-		case 3:
-			funcForTeam4();
-			break;
+		if(!key1StateBefore && key1StateAfter){
+			selectedCharacterAfter = (*pSelectedTeam)[0];
+			keyDown(selectedCharacterAfter);
+		}
+		else if(key1StateBefore && key1StateAfter){
+			keyHold(selectedCharacterAfter);
+		}
+		else if(key1StateBefore && !key1StateAfter){
+			keyUp(selectedCharacterAfter);
 		}
 
-		switch(selectedCharacter){
-		case SelectedCharacter_Keqing:
-			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				keqingDown();
-			}
-			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				keqingHold();
-			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-				keqingUp();
-			}
-			break;
+		if(!key2StateBefore && key2StateAfter){
+			selectedCharacterAfter = (*pSelectedTeam)[1];
+			keyDown(selectedCharacterAfter);
+		}
+		else if(key2StateBefore && key2StateAfter){
+			keyHold(selectedCharacterAfter);
+		}
+		else if(key2StateBefore && !key2StateAfter){
+			keyUp(selectedCharacterAfter);
+		}
 
-		case SelectedCharacter_Diluke:
-			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				dilukeDown();
-			}
-			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				dilukeHold();
-			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-				dilukeUp();
-			}
-			break;
+		if(!key3StateBefore && key3StateAfter){
+			selectedCharacterAfter = (*pSelectedTeam)[2];
+			keyDown(selectedCharacterAfter);
+		}
+		else if(key3StateBefore && key3StateAfter){
+			keyHold(selectedCharacterAfter);
+		}
+		else if(key3StateBefore && !key3StateAfter){
+			keyUp(selectedCharacterAfter);
+		}
 
-		case SelectedCharacter1_E_A:
-			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Down(SelectedCharacter1_E_A);
-			}
-			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Hold(SelectedCharacter1_E_A);
-			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-				E_A_Up(SelectedCharacter1_E_A);
-			}
-			break;
+		if(!key4StateBefore && key4StateAfter){
+			selectedCharacterAfter = (*pSelectedTeam)[3];
+			keyDown(selectedCharacterAfter);
+		}
+		else if(key4StateBefore && key4StateAfter){
+			keyHold(selectedCharacterAfter);
+		}
+		else if(key4StateBefore && !key4StateAfter){
+			keyUp(selectedCharacterAfter);
+		}
 
-		case SelectedCharacter2_E_A:
-			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Down(SelectedCharacter2_E_A);
-			}
-			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Hold(SelectedCharacter2_E_A);
-			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-				E_A_Up(SelectedCharacter2_E_A);
-			}
-			break;
-
-		case SelectedCharacter3_E_A:
-			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Down(SelectedCharacter3_E_A);
-			}
-			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Hold(SelectedCharacter3_E_A);
-			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-				E_A_Up(SelectedCharacter3_E_A);
-			}
-			break;
-
-		case SelectedCharacter4_E_A:
-			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Down(SelectedCharacter4_E_A);
-			}
-			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-				E_A_Hold(SelectedCharacter4_E_A);
-			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-				E_A_Up(SelectedCharacter4_E_A);
-			}
-			break;
+		if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+			keyDown(selectedCharacterAfter);
+		}
+		else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+			keyHold(selectedCharacterAfter);
+		}
+		else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
+			keyUp(selectedCharacterAfter);
 		}
 
 		team1KeyStateBefore = team1KeyStateAfter;
@@ -222,176 +200,80 @@ int main(){
 		key3StateBefore = key3StateAfter;
 		key4StateBefore = key4StateAfter;
 		mouseSideKey2StateBefore = mouseSideKey2StateAfter;
+		selectedCharacterBefore = selectedCharacterAfter;
 	}
 }
 
-void funcForTeam1(){
-	if(!key1StateBefore && key1StateAfter){
-		E_A_Down(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up(SelectedCharacter1_E_A);
-	}
+void keyDown(int willSelecteCharacter){
+	switch(willSelecteCharacter){
+	case SelectedCharacter_Keqing:
+		keqingDown(willSelecteCharacter);
+		break;
 
-	if(!key2StateBefore && key2StateAfter){
-		E_A_Down(SelectedCharacter2_E_A);
-	}
-	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold(SelectedCharacter2_E_A);
-	}
-	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up(SelectedCharacter2_E_A);
-	}
+	case SelectedCharacter_Diluke:
+		dilukeDown(willSelecteCharacter);
+		break;
 
-	if(!key3StateBefore && key3StateAfter){
-		E_A_Down(SelectedCharacter3_E_A);
-	}
-	else if(key3StateBefore && key3StateAfter){
-		E_A_Hold(SelectedCharacter3_E_A);
-	}
-	else if(key3StateBefore && !key3StateAfter){
-		E_A_Up(SelectedCharacter3_E_A);
-	}
+	case SelectedCharacter_Qin:
+		keqingDown(willSelecteCharacter);
+		break;
 
-	if(!key4StateBefore && key4StateAfter){
-		dilukeDown();
-	}
-	else if(key4StateBefore && key4StateAfter){
-		dilukeHold();
-	}
-	else if(key4StateBefore && !key4StateAfter){
-		dilukeUp();
+	case SelectedCharacter1_E_A:
+	case SelectedCharacter2_E_A:
+	case SelectedCharacter3_E_A:
+	case SelectedCharacter4_E_A:
+		E_A_Down(willSelecteCharacter);
+		break;
 	}
 }
 
-void funcForTeam2(){
-	if(!key1StateBefore && key1StateAfter){
-		E_A_Down(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up(SelectedCharacter1_E_A);
-	}
+void keyHold(int willSelecteCharacter){
+	switch(willSelecteCharacter){
+	case SelectedCharacter_Keqing:
+		keqingHold(willSelecteCharacter);
+		break;
 
-	if(!key2StateBefore && key2StateAfter){
-		keqingDown();
-	}
-	else if(key2StateBefore && key2StateAfter){
-		keqingHold();
-	}
-	else if(key2StateBefore && !key2StateAfter){
-		keqingUp();
-	}
+	case SelectedCharacter_Diluke:
+		dilukeHold(willSelecteCharacter);
+		break;
 
-	if(!key3StateBefore && key3StateAfter){
-		keqingDown();
-	}
-	else if(key3StateBefore && key3StateAfter){
-		keqingHold();
-	}
-	else if(key3StateBefore && !key3StateAfter){
-		keqingUp();
-	}
+	case SelectedCharacter_Qin:
+		keqingHold(willSelecteCharacter);
+		break;
 
-	if(!key4StateBefore && key4StateAfter){
-		E_A_Down(SelectedCharacter4_E_A);
-	}
-	else if(key4StateBefore && key4StateAfter){
-		E_A_Hold(SelectedCharacter4_E_A);
-	}
-	else if(key4StateBefore && !key4StateAfter){
-		E_A_Up(SelectedCharacter4_E_A);
+	case SelectedCharacter1_E_A:
+	case SelectedCharacter2_E_A:
+	case SelectedCharacter3_E_A:
+	case SelectedCharacter4_E_A:
+		E_A_Hold(willSelecteCharacter);
+		break;
 	}
 }
 
-void funcForTeam3(){
-	if(!key1StateBefore && key1StateAfter){
-		E_A_Down(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up(SelectedCharacter1_E_A);
-	}
+void keyUp(int willSelecteCharacter){
+	switch(willSelecteCharacter){
+	case SelectedCharacter_Keqing:
+		keqingUp(willSelecteCharacter);
+		break;
 
-	if(!key2StateBefore && key2StateAfter){
-		E_A_Down(SelectedCharacter2_E_A);
-	}
-	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold(SelectedCharacter2_E_A);
-	}
-	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up(SelectedCharacter2_E_A);
-	}
+	case SelectedCharacter_Diluke:
+		dilukeUp(willSelecteCharacter);
+		break;
 
-	if(!key3StateBefore && key3StateAfter){
-		E_A_Down(SelectedCharacter3_E_A);
-	}
-	else if(key3StateBefore && key3StateAfter){
-		E_A_Hold(SelectedCharacter3_E_A);
-	}
-	else if(key3StateBefore && !key3StateAfter){
-		E_A_Up(SelectedCharacter3_E_A);
-	}
+	case SelectedCharacter_Qin:
+		keqingUp(willSelecteCharacter);
+		break;
 
-	if(!key4StateBefore && key4StateAfter){
-		E_A_Down(SelectedCharacter4_E_A);
-	}
-	else if(key4StateBefore && key4StateAfter){
-		E_A_Hold(SelectedCharacter4_E_A);
-	}
-	else if(key4StateBefore && !key4StateAfter){
-		E_A_Up(SelectedCharacter4_E_A);
+	case SelectedCharacter1_E_A:
+	case SelectedCharacter2_E_A:
+	case SelectedCharacter3_E_A:
+	case SelectedCharacter4_E_A:
+		E_A_Up(willSelecteCharacter);
+		break;
 	}
 }
 
-void funcForTeam4(){
-	if(!key1StateBefore && key1StateAfter){
-		E_A_Down(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold(SelectedCharacter1_E_A);
-	}
-	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up(SelectedCharacter1_E_A);
-	}
 
-	if(!key2StateBefore && key2StateAfter){
-		E_A_Down(SelectedCharacter2_E_A);
-	}
-	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold(SelectedCharacter2_E_A);
-	}
-	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up(SelectedCharacter2_E_A);
-	}
-
-	if(!key3StateBefore && key3StateAfter){
-		E_A_Down(SelectedCharacter3_E_A);
-	}
-	else if(key3StateBefore && key3StateAfter){
-		E_A_Hold(SelectedCharacter3_E_A);
-	}
-	else if(key3StateBefore && !key3StateAfter){
-		E_A_Up(SelectedCharacter3_E_A);
-	}
-
-	if(!key4StateBefore && key4StateAfter){
-		E_A_Down(SelectedCharacter4_E_A);
-	}
-	else if(key4StateBefore && key4StateAfter){
-		E_A_Hold(SelectedCharacter4_E_A);
-	}
-	else if(key4StateBefore && !key4StateAfter){
-		E_A_Up(SelectedCharacter4_E_A);
-	}
-}
 
 
 
@@ -414,19 +296,18 @@ DWORD keqingSecond_E_Time = 0;
 DWORD keqing_Down_Time = 0;
 DWORD keqing_Up_Time = 0;
 
-void keqingDown(){
-	if(selectedCharacter != SelectedCharacter_Keqing){
-		selectedCharacter = SelectedCharacter_Keqing;
+void keqingDown(int willSelecteCharacter){
+	if(selectedCharacterBefore != willSelecteCharacter){
 		keqingBuzhou = 步骤_刻晴一段E;
 		changeKeqingTime = timeGetTime();
 	}
 }
 
-void keqingHold(){
+void keqingHold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - changeKeqingTime < 250){
+	if(nowTime - changeKeqingTime < 200){
 		return;
 	}
 
@@ -482,7 +363,7 @@ void keqingHold(){
 	}
 }
 
-void keqingUp(){
+void keqingUp(int willSelecteCharacter){
 	if(keqingBuzhou == 步骤_刻晴重击等待或者E){
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
 	}
@@ -491,12 +372,12 @@ void keqingUp(){
 
 
 DWORD longE_buzhou = 0;
-void longE_Down(){
+void longE_Down(int willSelecteCharacter){
 	longE_buzhou = 0;
 	beginTimeLongE = timeGetTime();
 }
 
-void longE_Hold(){
+void longE_Hold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 	DWORD time = nowTime - beginTimeLongE;
 
@@ -525,7 +406,7 @@ void longE_Hold(){
 	}
 }
 
-void longE_Up(){
+void longE_Up(int willSelecteCharacter){
 	keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
 }
 
@@ -539,19 +420,18 @@ DWORD changeDilukeTime = 0;//切换到迪卢克的时间
 DWORD diluke_E_or_A_Time = 0;//迪卢克上一次E或者A的时间
 DWORD diluke_E_time = 0;//迪卢克上一次E的时间
 
-void dilukeDown(){
-	if(selectedCharacter != SelectedCharacter_Diluke){
-		selectedCharacter = SelectedCharacter_Diluke;
+void dilukeDown(int willSelecteCharacter){
+	if(selectedCharacterBefore != willSelecteCharacter){
 		changeDilukeTime = timeGetTime();
 		diluke_E_or_A_Time = changeDilukeTime;
 	}
 }
 
-void dilukeHold(){
+void dilukeHold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - changeDilukeTime < 250){
+	if(nowTime - changeDilukeTime < 200){
 		return;
 	}
 
@@ -586,7 +466,7 @@ void dilukeHold(){
 	}
 }
 
-void dilukeUp(){
+void dilukeUp(int willSelecteCharacter){
 
 }
 
@@ -594,18 +474,18 @@ int E_A_Buzhou = 0;
 DWORD change_E_A_Time = 0;//切换到这个角色的时间
 DWORD E_Time = 0;//E的时间
 DWORD A_Time = 0;//A的时间
-void E_A_Down(int ordinal){
-	if(selectedCharacter != ordinal){
-		selectedCharacter = ordinal;
+void E_A_Down(int willSelecteCharacter){
+	if(selectedCharacterBefore != willSelecteCharacter){
+		selectedCharacterBefore = willSelecteCharacter;
 		change_E_A_Time = timeGetTime();
 	}
 	E_A_Buzhou = 0;
 }
-void E_A_Hold(int ordinal){
+void E_A_Hold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - change_E_A_Time < 230){
+	if(nowTime - change_E_A_Time < 200){
 		return;
 	}
 
@@ -618,7 +498,7 @@ void E_A_Hold(int ordinal){
 		break;
 
 	case 1:
-		if(nowTime - E_Time >= 20){
+		if(nowTime - E_Time >= 100){
 			E_A_Buzhou = 2;
 		}
 		break;
@@ -631,13 +511,13 @@ void E_A_Hold(int ordinal){
 		break;
 
 	case 3:
-		if(nowTime - A_Time >= 20){
+		if(nowTime - A_Time >= 100){
 			E_A_Buzhou = 0;
 		}
 		break;
 	}
 }
 
-void E_A_Up(int ordinal){
+void E_A_Up(int willSelecteCharacter){
 
 }
