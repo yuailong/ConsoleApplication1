@@ -83,13 +83,14 @@ int main(){
 	}
 	*/
 
-	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n一队：EA、EA、EA、迪卢克\n二队：EA、EA、刻晴、琴\n");
+	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n");
 
 	while(true){
 		//脚本开关
 		kaiguanKeyStateAfter = GetAsyncKeyState(开关键_F8_虚拟码);
 		if(kaiguanKeyStateBefore && !kaiguanKeyStateAfter){//正在抬起开关键
 			kaiguan = !kaiguan;
+			printf(kaiguan? "已开启\n" : "已关闭\n");
 		}
 		kaiguanKeyStateBefore = kaiguanKeyStateAfter;
 		if(!kaiguan){
@@ -108,19 +109,19 @@ int main(){
 
 		if(team1KeyStateBefore && !team1KeyStateAfter){
 			selectedTeam = 0;
-			printf("切换到一队");
+			printf("已切换到一队：EA、EA、EA、迪卢克\n");
 		}
 		else if(team2KeyStateBefore && !team2KeyStateAfter){
 			selectedTeam = 1;
-			printf("切换到一队");
+			printf("已切换到二队：EA、EA、刻晴、琴\n");
 		}
 		else if(team3KeyStateBefore && !team3KeyStateAfter){
 			selectedTeam = 2;
-			printf("切换到三队");
+			printf("已切换到三队：EA、EA、EA、EA\n");
 		}
 		else if(team4KeyStateBefore && !team4KeyStateAfter){
 			selectedTeam = 3;
-			printf("切换到四队");
+			printf("已切换到四队：EA、EA、EA、EA\n");
 		}
 
 		switch(selectedTeam){
