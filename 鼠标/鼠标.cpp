@@ -18,21 +18,24 @@
 #define 三队_F10_虚拟码 VK_F11
 #define 四队_F10_虚拟码 VK_F12
 
+
 //当前角色
-#define SelectedCharacter_E_A 0
-#define SelectedCharacter_Diluke 1
-#define SelectedCharacter_Keqing 2
+#define SelectedCharacter1_E_A 1001			//在1号位的，有E用E的，没E普攻的角色
+#define SelectedCharacter2_E_A 1002			//在2号位的，有E用E的，没E普攻的角色
+#define SelectedCharacter3_E_A 1003			//在3号位的，有E用E的，没E普攻的角色
+#define SelectedCharacter4_E_A 1004			//在4号位的，有E用E的，没E普攻的角色
+#define SelectedCharacter_Diluke 104			//迪卢克AEAEAE
+#define SelectedCharacter_Keqing 203			//刻晴EE重击重击重击...
 
 bool kaiguan = 1;
-int selectedTeam = 1;//0代表第一队，1代表第二队...
-int selectedCharacter = SelectedCharacter_E_A;
+int selectedTeam = 0;//0代表第一队，1代表第二队...
+int selectedCharacter = SelectedCharacter1_E_A;
 
 SHORT kaiguanKeyStateBefore = 0;
 SHORT key1StateBefore = 0;
 SHORT key2StateBefore = 0;
 SHORT key3StateBefore = 0;
 SHORT key4StateBefore = 0;
-SHORT leftMouseStateBefore = 0;
 SHORT team1KeyStateBefore = 0;
 SHORT team2KeyStateBefore = 0;
 SHORT team3KeyStateBefore = 0;
@@ -44,19 +47,17 @@ SHORT key1StateAfter = 0;
 SHORT key2StateAfter = 0;
 SHORT key3StateAfter = 0;
 SHORT key4StateAfter = 0;
-SHORT leftMouseStateAfter = 0;
 SHORT team1KeyStateAfter = 0;
 SHORT team2KeyStateAfter = 0;
 SHORT team3KeyStateAfter = 0;
 SHORT team4KeyStateAfter = 0;
-SHORT mouseSideKey1StateAfter = 0;
+SHORT mouseSideKey2StateAfter = 0;
 
 DWORD beginTimeLongE = 0;
-DWORD E_A_beginTime = 0;
 
-void KeqingDown();//按下
-void KeqingHold();//按住
-void KeqingUp();//弹起
+void keqingDown();//按下
+void keqingHold();//按住
+void keqingUp();//弹起
 
 void longE_Down();//按下
 void longE_Hold();//按住
@@ -66,9 +67,9 @@ void dilukeDown();//按下
 void dilukeHold();//按住
 void dilukeUp();//弹起
 
-void E_A_Down();//按下
-void E_A_Hold();//按住
-void E_A_Up();//弹起
+void E_A_Down(int ordinal);//按下
+void E_A_Hold(int ordinal);//按住
+void E_A_Up(int ordinal);//弹起
 
 void funcForTeam1();
 void funcForTeam2();
@@ -81,6 +82,9 @@ int main(){
 		printf("F8的扫描码：%d\n", MapVirtualKeyA(VK_F8, 0));
 	}
 	*/
+
+	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n一队：EA、EA、EA、迪卢克\n二队：EA、EA、刻晴、琴\n");
+
 	while(true){
 		//脚本开关
 		kaiguanKeyStateAfter = GetAsyncKeyState(开关键_F8_虚拟码);
@@ -100,20 +104,24 @@ int main(){
 		key2StateAfter = GetAsyncKeyState(0x32);
 		key3StateAfter = GetAsyncKeyState(0x33);
 		key4StateAfter = GetAsyncKeyState(0x34);
-		mouseSideKey1StateAfter = GetAsyncKeyState(VK_XBUTTON1);
+		mouseSideKey2StateAfter = GetAsyncKeyState(VK_XBUTTON1);
 
 		if(team1KeyStateBefore && !team1KeyStateAfter){
 			selectedTeam = 0;
+			printf("切换到一队");
 		}
 		else if(team2KeyStateBefore && !team2KeyStateAfter){
 			selectedTeam = 1;
+			printf("切换到一队");
 		}
 		else if(team3KeyStateBefore && !team3KeyStateAfter){
 			selectedTeam = 2;
+			printf("切换到三队");
 		}
 		else if(team4KeyStateBefore && !team4KeyStateAfter){
 			selectedTeam = 3;
-		}		
+			printf("切换到四队");
+		}
 
 		switch(selectedTeam){
 		case 0:
@@ -132,42 +140,78 @@ int main(){
 
 		switch(selectedCharacter){
 		case SelectedCharacter_Keqing:
-			if(!mouseSideKey2StateBefore && mouseSideKey1StateAfter){
-				KeqingDown();
+			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				keqingDown();
 			}
-			else if(mouseSideKey2StateBefore && mouseSideKey1StateAfter){
-				KeqingHold();
+			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				keqingHold();
 			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey1StateAfter){
-				KeqingUp();
+			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
+				keqingUp();
 			}
 			break;
 
 		case SelectedCharacter_Diluke:
-			if(!mouseSideKey2StateBefore && mouseSideKey1StateAfter){
+			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
 				dilukeDown();
 			}
-			else if(mouseSideKey2StateBefore && mouseSideKey1StateAfter){
+			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
 				dilukeHold();
 			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey1StateAfter){
+			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
 				dilukeUp();
 			}
 			break;
 
-		case SelectedCharacter_E_A:
-			if(!mouseSideKey2StateBefore && mouseSideKey1StateAfter){
-				E_A_Down();
+		case SelectedCharacter1_E_A:
+			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Down(SelectedCharacter1_E_A);
 			}
-			else if(mouseSideKey2StateBefore && mouseSideKey1StateAfter){
-				E_A_Hold();
+			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Hold(SelectedCharacter1_E_A);
 			}
-			else if(mouseSideKey2StateBefore && !mouseSideKey1StateAfter){
-				E_A_Up();
+			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
+				E_A_Up(SelectedCharacter1_E_A);
+			}
+			break;
+
+		case SelectedCharacter2_E_A:
+			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Down(SelectedCharacter2_E_A);
+			}
+			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Hold(SelectedCharacter2_E_A);
+			}
+			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
+				E_A_Up(SelectedCharacter2_E_A);
+			}
+			break;
+
+		case SelectedCharacter3_E_A:
+			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Down(SelectedCharacter3_E_A);
+			}
+			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Hold(SelectedCharacter3_E_A);
+			}
+			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
+				E_A_Up(SelectedCharacter3_E_A);
+			}
+			break;
+
+		case SelectedCharacter4_E_A:
+			if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Down(SelectedCharacter4_E_A);
+			}
+			else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
+				E_A_Hold(SelectedCharacter4_E_A);
+			}
+			else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
+				E_A_Up(SelectedCharacter4_E_A);
 			}
 			break;
 		}
-		
+
 		team1KeyStateBefore = team1KeyStateAfter;
 		team2KeyStateBefore = team2KeyStateAfter;
 		team3KeyStateBefore = team3KeyStateAfter;
@@ -176,39 +220,39 @@ int main(){
 		key2StateBefore = key2StateAfter;
 		key3StateBefore = key3StateAfter;
 		key4StateBefore = key4StateAfter;
-		mouseSideKey2StateBefore = mouseSideKey1StateAfter;
+		mouseSideKey2StateBefore = mouseSideKey2StateAfter;
 	}
 }
 
 void funcForTeam1(){
 	if(!key1StateBefore && key1StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter1_E_A);
 	}
 
 	if(!key2StateBefore && key2StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter2_E_A);
 	}
 
 	if(!key3StateBefore && key3StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter3_E_A);
 	}
 	else if(key3StateBefore && key3StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter3_E_A);
 	}
 	else if(key3StateBefore && !key3StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter3_E_A);
 	}
 
 	if(!key4StateBefore && key4StateAfter){
@@ -220,171 +264,131 @@ void funcForTeam1(){
 	else if(key4StateBefore && !key4StateAfter){
 		dilukeUp();
 	}
-
-	if(!leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && !leftMouseStateAfter){
-
-	}
 }
 
 void funcForTeam2(){
 	if(!key1StateBefore && key1StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter1_E_A);
 	}
 
 	if(!key2StateBefore && key2StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter2_E_A);
 	}
 
 	if(!key3StateBefore && key3StateAfter){
-		KeqingDown();
+		keqingDown();
 	}
 	else if(key3StateBefore && key3StateAfter){
-		KeqingHold();
+		keqingHold();
 	}
 	else if(key3StateBefore && !key3StateAfter){
-		KeqingUp();
+		keqingUp();
 	}
 
 	if(!key4StateBefore && key4StateAfter){
-		KeqingDown();
+		keqingDown();
 	}
 	else if(key4StateBefore && key4StateAfter){
-		KeqingHold();
+		keqingHold();
 	}
 	else if(key4StateBefore && !key4StateAfter){
-		KeqingUp();
-	}
-
-	if(!leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && !leftMouseStateAfter){
-
+		keqingUp();
 	}
 }
 
 void funcForTeam3(){
 	if(!key1StateBefore && key1StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter1_E_A);
 	}
 
 	if(!key2StateBefore && key2StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter2_E_A);
 	}
 
 	if(!key3StateBefore && key3StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter3_E_A);
 	}
 	else if(key3StateBefore && key3StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter3_E_A);
 	}
 	else if(key3StateBefore && !key3StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter3_E_A);
 	}
 
 	if(!key4StateBefore && key4StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter4_E_A);
 	}
 	else if(key4StateBefore && key4StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter4_E_A);
 	}
 	else if(key4StateBefore && !key4StateAfter){
-		E_A_Up();
-	}
-
-	if(!leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && !leftMouseStateAfter){
-
+		E_A_Up(SelectedCharacter4_E_A);
 	}
 }
 
 void funcForTeam4(){
 	if(!key1StateBefore && key1StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && key1StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter1_E_A);
 	}
 	else if(key1StateBefore && !key1StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter1_E_A);
 	}
 
 	if(!key2StateBefore && key2StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && key2StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter2_E_A);
 	}
 	else if(key2StateBefore && !key2StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter2_E_A);
 	}
 
 	if(!key3StateBefore && key3StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter3_E_A);
 	}
 	else if(key3StateBefore && key3StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter3_E_A);
 	}
 	else if(key3StateBefore && !key3StateAfter){
-		E_A_Up();
+		E_A_Up(SelectedCharacter3_E_A);
 	}
 
 	if(!key4StateBefore && key4StateAfter){
-		E_A_Down();
+		E_A_Down(SelectedCharacter4_E_A);
 	}
 	else if(key4StateBefore && key4StateAfter){
-		E_A_Hold();
+		E_A_Hold(SelectedCharacter4_E_A);
 	}
 	else if(key4StateBefore && !key4StateAfter){
-		E_A_Up();
-	}
-
-	if(!leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && leftMouseStateAfter){
-
-	}
-	else if(leftMouseStateBefore && !leftMouseStateAfter){
-
+		E_A_Up(SelectedCharacter4_E_A);
 	}
 }
 
@@ -395,9 +399,8 @@ void funcForTeam4(){
 #define 步骤_刻晴二段E 3
 #define 步骤_刻晴二段E等待后摇 4
 #define 步骤_刻晴重击按下鼠标 5
-#define 步骤_刻晴重击等待按住鼠标 6
-#define 步骤_刻晴重击弹起鼠标 7
-#define 步骤_刻晴重击等待后摇 8
+#define 步骤_刻晴重击等待或者E 6
+#define 步骤_刻晴重击等待后摇 7
 
 
 #define 刻晴重击按住时间 400
@@ -410,7 +413,7 @@ DWORD keqingSecond_E_Time = 0;
 DWORD keqing_Down_Time = 0;
 DWORD keqing_Up_Time = 0;
 
-void KeqingDown(){
+void keqingDown(){
 	if(selectedCharacter != SelectedCharacter_Keqing){
 		selectedCharacter = SelectedCharacter_Keqing;
 		keqingBuzhou = 步骤_刻晴一段E;
@@ -418,7 +421,7 @@ void KeqingDown(){
 	}
 }
 
-void KeqingHold(){
+void keqingHold(){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
@@ -428,22 +431,38 @@ void KeqingHold(){
 
 	switch(keqingBuzhou){
 	case 步骤_刻晴一段E:
-		if(nowTime - keqingFirst_E_Time >= 7500){//E技能冷却完毕
-			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-			keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-			keqingBuzhou = 步骤_刻晴一段E等待后摇;
-			keqingFirst_E_Time = nowTime;
-			printf("刻晴一段E\n");
-		}
-		else{
-			keqingBuzhou = 步骤_刻晴重击按下鼠标;
-			printf("刻晴E冷却\n");
-		}
+		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
+		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+		keqingBuzhou = 步骤_刻晴一段E等待后摇;
+		keqingFirst_E_Time = nowTime;
 		break;
 
 	case 步骤_刻晴一段E等待后摇:
-		if(nowTime - keqingFirst_E_Time > 700){
+		if(nowTime - keqingFirst_E_Time > 50){
+			keqingBuzhou = 步骤_刻晴重击按下鼠标;
+		}
+		break;
+
+	case 步骤_刻晴重击按下鼠标:
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+		keqingBuzhou = 步骤_刻晴重击等待或者E;
+		keqing_Down_Time = nowTime;
+		break;
+
+	case 步骤_刻晴重击等待或者E:
+		if(nowTime - keqing_Down_Time >= 刻晴重击按住时间){
+			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+			keqingBuzhou = 步骤_刻晴重击等待后摇;
+			keqing_Up_Time = nowTime;
+		}
+		else if(nowTime - keqingFirst_E_Time >= 50){
 			keqingBuzhou = 步骤_刻晴二段E;
+		}
+		break;
+
+	case 步骤_刻晴重击等待后摇:
+		if(nowTime - keqing_Up_Time >= 刻晴重击松开鼠标后等待时间){
+			keqingBuzhou = 步骤_刻晴重击按下鼠标;
 		}
 		break;
 
@@ -451,50 +470,21 @@ void KeqingHold(){
 		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
 		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
 		keqingBuzhou = 步骤_刻晴二段E等待后摇;
-		keqingSecond_E_Time = nowTime;
-		printf("刻晴二段E\n");
+		keqingFirst_E_Time = nowTime;
 		break;
 
 	case 步骤_刻晴二段E等待后摇:
-		if(nowTime - keqingSecond_E_Time > 300){
-			keqingBuzhou = 步骤_刻晴重击按下鼠标;
+		if(nowTime - keqingFirst_E_Time > 50){
+			keqingBuzhou = 步骤_刻晴重击等待或者E;
 		}
-		break;
-
-	case 步骤_刻晴重击按下鼠标:
-		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-		keqingBuzhou = 步骤_刻晴重击等待按住鼠标;
-		keqing_Down_Time = nowTime;
-		printf("刻晴重击按下鼠标\n");
-		break;
-
-	case 步骤_刻晴重击等待按住鼠标:
-		if(nowTime - keqing_Down_Time >= 刻晴重击按住时间){
-			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
-			keqingBuzhou = 步骤_刻晴重击等待后摇;
-			keqing_Up_Time = nowTime;
-			printf("刻晴松开鼠标\n");
-		}
-		break;
-
-	case 步骤_刻晴重击等待后摇:
-		if(nowTime - keqingFirst_E_Time >= 7500){
-			if(nowTime - keqing_Up_Time >= 400){
-				keqingBuzhou = 步骤_刻晴一段E;
-			}
-		}
-		else{
-			if(nowTime - keqing_Up_Time >= 刻晴重击松开鼠标后等待时间){
-				keqingBuzhou = 步骤_刻晴重击按下鼠标;
-			}
-		}
-		
 		break;
 	}
 }
 
-void KeqingUp(){
-	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+void keqingUp(){
+	if(keqingBuzhou == 步骤_刻晴重击等待或者E){
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	}
 }
 
 
@@ -539,35 +529,20 @@ void longE_Up(){
 }
 
 
-#define 步骤_迪卢克第一次普攻 2
-#define 步骤_迪卢克等待第一次普攻后摇时间 3
-#define 步骤_迪卢克第一次E 4
-#define 步骤_迪卢克等待第一次E后摇时间 5
-#define 步骤_迪卢克第二次普攻 6
-#define 步骤_迪卢克等待第二次普攻后摇时间 7
-#define 步骤_迪卢克第二次E 8
-#define 步骤_迪卢克等待第二次E后摇时间 9
-#define 步骤_迪卢克第三次普攻 10
-#define 步骤_迪卢克等待第三次普攻后摇时间 11
-#define 步骤_迪卢克第三次E 12
-#define 步骤_迪卢克等待第三次E后摇时间 13
-#define 步骤_迪卢克普攻 14
-#define 步骤_迪卢克等待普攻后摇时间 15
+#define 步骤_迪卢克第一次普攻 1
+#define 步骤_迪卢克等待50毫秒 2
+#define 步骤_迪卢克E或者A 3
 
-int dilukeBuzhou = 步骤_迪卢克第一次普攻;
+int dilukeBuzhou = 步骤_迪卢克E或者A;
 DWORD changeDilukeTime = 0;//切换到迪卢克的时间
-DWORD dilukeFirst_A_Time = 0;//迪卢克第一次A的时间
-DWORD dilukeFirst_E_time = 0;//迪卢克第一次E的时间
-DWORD dilukeSecond_A_Time = 0;//迪卢克第二次A的时间
-DWORD dilukeSecond_E_Time = 0;//迪卢克第二次E的时间
-DWORD dilukeThird_A_Time = 0;//迪卢克第三次A的时间
-DWORD dilukeThird_E_time = 0;//迪卢克第三次E的时间
-DWORD diluke_A_Time = 0;//迪卢克A的时间
+DWORD diluke_E_or_A_Time = 0;//迪卢克上一次E或者A的时间
+DWORD diluke_E_time = 0;//迪卢克上一次E的时间
 
 void dilukeDown(){
 	if(selectedCharacter != SelectedCharacter_Diluke){
 		selectedCharacter = SelectedCharacter_Diluke;
 		changeDilukeTime = timeGetTime();
+		diluke_E_or_A_Time = changeDilukeTime;
 	}
 }
 
@@ -583,113 +558,29 @@ void dilukeHold(){
 	case 步骤_迪卢克第一次普攻:
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
-		dilukeBuzhou = 步骤_迪卢克等待第一次普攻后摇时间;
-		dilukeFirst_A_Time = nowTime;
+		diluke_E_or_A_Time = nowTime;
+		diluke_E_time = nowTime;
+		dilukeBuzhou = 步骤_迪卢克等待50毫秒;
 		break;
 
-	case 步骤_迪卢克等待第一次普攻后摇时间:
-		if(nowTime - dilukeFirst_A_Time >= 450){
-			dilukeBuzhou = 步骤_迪卢克第一次E;
+	case 步骤_迪卢克等待50毫秒:
+		if(nowTime - diluke_E_or_A_Time >= 50){
+			dilukeBuzhou = 步骤_迪卢克E或者A;
 		}
 		break;
 
-	case 步骤_迪卢克第一次E:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-		dilukeBuzhou = 步骤_迪卢克等待第一次E后摇时间;
-		dilukeFirst_E_time = nowTime;
-		break;
-
-	case 步骤_迪卢克等待第一次E后摇时间:
-		if(nowTime - dilukeFirst_E_time >= 3900){//超过3900毫秒秒不用第二次E就进入冷却
-			dilukeBuzhou = 步骤_迪卢克普攻;
-		}
-		else if(nowTime - dilukeFirst_E_time >= 560){//等待第一次E后摇
-			dilukeBuzhou = 步骤_迪卢克第二次普攻;
-		}
-		break;
-
-	case 步骤_迪卢克第二次普攻:
-		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
-		dilukeBuzhou = 步骤_迪卢克等待第二次普攻后摇时间;
-		dilukeSecond_A_Time = nowTime;
-		break;
-
-	case 步骤_迪卢克等待第二次普攻后摇时间:
-		if(nowTime - dilukeFirst_E_time >= 3900){//超过3900毫秒秒不用第二次E就进入冷却
-			dilukeBuzhou = 步骤_迪卢克普攻;
-		}
-		else if(nowTime - dilukeSecond_A_Time >= 450){//等待第二次A后摇
-			dilukeBuzhou = 步骤_迪卢克第二次E;
-		}
-		break;
-
-	case 步骤_迪卢克第二次E:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-		dilukeBuzhou = 步骤_迪卢克等待第二次E后摇时间;
-		dilukeSecond_E_Time = nowTime;
-		break;
-
-	case 步骤_迪卢克等待第二次E后摇时间:
-		if(nowTime - dilukeSecond_E_Time >= 3900){//超过3900毫秒秒不用第三次E就进入冷却
-			dilukeBuzhou = 步骤_迪卢克普攻;
-		}
-		else if(nowTime - dilukeSecond_E_Time >= 760){//等待第二次E后摇
-			dilukeBuzhou = 步骤_迪卢克第三次普攻;
-		}
-		break;
-
-	case 步骤_迪卢克第三次普攻:
-		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
-		dilukeBuzhou = 步骤_迪卢克等待第三次普攻后摇时间;
-		dilukeThird_A_Time = nowTime;
-		break;
-
-	case 步骤_迪卢克等待第三次普攻后摇时间:
-		if(nowTime - dilukeSecond_E_Time >= 3900){//超过3900毫秒秒不用第三次E就进入冷却
-			dilukeBuzhou = 步骤_迪卢克普攻;
-		}
-		else if(nowTime - dilukeThird_A_Time >= 450){//等待第三次A后摇
-			dilukeBuzhou = 步骤_迪卢克第三次E;
-		}
-		break;
-
-	case 步骤_迪卢克第三次E:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-		dilukeBuzhou = 步骤_迪卢克等待第三次E后摇时间;
-		changeDilukeTime = nowTime;
-		break;
-
-	case 步骤_迪卢克等待第三次E后摇时间:
-		if(nowTime - dilukeThird_E_time >= 800){
-			dilukeBuzhou = 步骤_迪卢克普攻;
-		}
-		break;
-
-	case 步骤_迪卢克普攻:
-		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
-		if(nowTime - dilukeFirst_E_time >= 10000){//从第一次用E起，超过10秒的话，E冷却完毕
-			dilukeBuzhou = 步骤_迪卢克等待第一次普攻后摇时间;
+	case 步骤_迪卢克E或者A:
+		if(nowTime - diluke_E_time >= 500){
+			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
+			keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+			diluke_E_time = nowTime;
 		}
 		else{
-			dilukeBuzhou = 步骤_迪卢克等待普攻后摇时间;
+			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 		}
-		diluke_A_Time = nowTime;
-		break;
-
-	case 步骤_迪卢克等待普攻后摇时间:
-		if(nowTime - dilukeFirst_E_time >= 10000){//从第一次用E起，超过10秒的话，E冷却完毕
-			dilukeBuzhou = 步骤_迪卢克第一次普攻;
-		}
-		else if(nowTime - diluke_A_Time >= 100){
-			dilukeBuzhou = 步骤_迪卢克普攻;
-		}
-
+		dilukeBuzhou = 步骤_迪卢克等待50毫秒;
+		diluke_E_or_A_Time = nowTime;
 		break;
 	}
 }
@@ -699,35 +590,53 @@ void dilukeUp(){
 }
 
 int E_A_Buzhou = 0;
-void E_A_Down(){
-	selectedCharacter = SelectedCharacter_E_A;
+DWORD change_E_A_Time = 0;//切换到这个角色的时间
+DWORD E_Time = 0;//E的时间
+DWORD A_Time = 0;//A的时间
+void E_A_Down(int ordinal){
+	if(selectedCharacter != ordinal){
+		selectedCharacter = ordinal;
+		change_E_A_Time = timeGetTime();
+	}
 	E_A_Buzhou = 0;
-	E_A_beginTime = timeGetTime();
 }
-void E_A_Hold(){
+void E_A_Hold(int ordinal){
 	DWORD nowTime = timeGetTime();
-	DWORD time = nowTime - E_A_beginTime;
+
+	//等待切换硬直时间
+	if(nowTime - change_E_A_Time < 230){
+		return;
+	}
 
 	switch(E_A_Buzhou){
 	case 0:
-		if(time >= 20){
-			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-			keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-			E_A_Buzhou = 1;
-			E_A_beginTime = nowTime;
+		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
+		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+		E_A_Buzhou = 1;
+		E_Time = nowTime;
+		break;
+
+	case 1:
+		if(nowTime - E_Time >= 20){
+			E_A_Buzhou = 2;
 		}
 		break;
-	case 1:
-		if(time >= 20){
-			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+
+	case 2:
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+		E_A_Buzhou = 3;
+		A_Time = nowTime;
+		break;
+
+	case 3:
+		if(nowTime - A_Time >= 20){
 			E_A_Buzhou = 0;
-			E_A_beginTime = nowTime;
 		}
 		break;
 	}
 }
 
-void E_A_Up(){
+void E_A_Up(int ordinal){
 
 }
