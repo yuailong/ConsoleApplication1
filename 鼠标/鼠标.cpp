@@ -404,7 +404,9 @@ void keqingHold(int selectedCharacterAfter){
 }
 
 void keqingUp(int selectedCharacterAfter){
-	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	if(keqingBuzhou == 刻晴步骤4_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒 || keqingBuzhou == 刻晴步骤5_如果重击完毕则弹起鼠标跳到第7步_否则E || keqingBuzhou == 刻晴步骤6_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒回到第5步){
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	}
 }
 
 
@@ -416,15 +418,15 @@ void keqingUp(int selectedCharacterAfter){
 #define 琴步骤4_等待100毫秒 4
 
 DWORD changeQinTime = 0;
-DWORD qinBuzhou = 0;
+DWORD qinBuzhou = qinBuzhou = 琴步骤1_按下鼠标;;
 DWORD qin_Buzhou1_Time = 0;
 DWORD qin_Buzhou3_Time = 0;
 
 void qinDown(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeQinTime = timeGetTime();
+		qinBuzhou = 琴步骤1_按下鼠标;
 	}
-	qinBuzhou = 琴步骤1_按下鼠标;
 }
 
 void qinHold(int selectedCharacterAfter){
@@ -442,7 +444,7 @@ void qinHold(int selectedCharacterAfter){
 		qinBuzhou = 琴步骤2_等待重击按住鼠标;
 		break;
 
-	case  琴步骤2_等待重击按住鼠标:
+	case 琴步骤2_等待重击按住鼠标:
 		if(nowTime - qin_Buzhou1_Time >= 400){
 			qinBuzhou = 琴步骤3_弹起鼠标;
 		}
@@ -462,9 +464,13 @@ void qinHold(int selectedCharacterAfter){
 	}
 }
 
-int up2time = 0;
 void qinUp(int selectedCharacterAfter){
+	DWORD nowTime = timeGetTime();
+	while(nowTime - qin_Buzhou1_Time < 400){
+		nowTime = timeGetTime();
+	}
 	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	qin_Buzhou3_Time = nowTime;
 }
 
 
