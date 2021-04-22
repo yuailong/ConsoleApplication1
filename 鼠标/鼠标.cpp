@@ -35,13 +35,13 @@ bool kaiguan = 1;
 int selectedCharacterBefore = SelectedCharacter1_E_A;
 int selectedCharacterAfter = SelectedCharacter1_E_A;
 int team1[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter_Diluke };
-int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter_Qin, SelectedCharacter_Keqing, SelectedCharacter4_E_A };
+int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter_Qin, SelectedCharacter_Keqing, SelectedCharacter_LongE };
 int team3[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A };
 int team4[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A };
 int(*pSelectedTeam)[4] = &team1;
 
 #define 切换到一队输出的文本 "已切换到一队：EA、EA、EA、迪卢克\n"
-#define 切换到二队输出的文本 "已切换到二队：EA、琴、刻晴、EA\n"
+#define 切换到二队输出的文本 "已切换到二队：EA、琴、刻晴、长按E角色\n"
 #define 切换到三队输出的文本 "已切换到三队：EA、EA、EA、迪卢克\n"
 #define 切换到四队输出的文本 "已切换到四队：EA、EA、EA、迪卢克\n"
 
@@ -66,8 +66,6 @@ SHORT team2KeyStateAfter = 0;
 SHORT team3KeyStateAfter = 0;
 SHORT team4KeyStateAfter = 0;
 SHORT mouseSideKey2StateAfter = 0;
-
-DWORD beginTimeLongE = 0;
 
 void keyDown(int willSelecteCharacter);
 void keyHold(int willSelecteCharacter);
@@ -97,6 +95,7 @@ int main(){
 	*/
 
 	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n");
+	printf(切换到一队输出的文本);
 
 	while(true){
 		//脚本开关
@@ -224,6 +223,10 @@ void keyDown(int willSelecteCharacter){
 	case SelectedCharacter4_E_A:
 		E_A_Down(willSelecteCharacter);
 		break;
+
+	case SelectedCharacter_LongE:
+		longE_Down(willSelecteCharacter);
+		break;
 	}
 }
 
@@ -247,6 +250,10 @@ void keyHold(int willSelecteCharacter){
 	case SelectedCharacter4_E_A:
 		E_A_Hold(willSelecteCharacter);
 		break;
+
+	case SelectedCharacter_LongE:
+		longE_Hold(willSelecteCharacter);
+		break;
 	}
 }
 
@@ -269,6 +276,9 @@ void keyUp(int willSelecteCharacter){
 	case SelectedCharacter3_E_A:
 	case SelectedCharacter4_E_A:
 		E_A_Up(willSelecteCharacter);
+		break;
+	case SelectedCharacter_LongE:
+		longE_Up(willSelecteCharacter);
 		break;
 	}
 }
@@ -307,7 +317,7 @@ void keqingHold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - changeKeqingTime < 200){
+	if(nowTime - changeKeqingTime < 250){
 		return;
 	}
 
@@ -372,42 +382,38 @@ void keqingUp(int willSelecteCharacter){
 
 
 DWORD longE_buzhou = 0;
+DWORD changeLong_E_Time = 0;//切换到长按E的角色的时间
+DWORD beginLong_E_Time = 0;//按下E键的时间
 void longE_Down(int willSelecteCharacter){
-	longE_buzhou = 0;
-	beginTimeLongE = timeGetTime();
+	if(selectedCharacterBefore != willSelecteCharacter){
+		longE_buzhou = 0;//刚切换到这个角色时从第0步开始
+		changeLong_E_Time = timeGetTime();
+	}
 }
 
 void longE_Hold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
-	DWORD time = nowTime - beginTimeLongE;
+
+	//等待切换硬直时间
+	if(nowTime - changeLong_E_Time < 250){
+		return;
+	}
 
 	switch(longE_buzhou){
 	case 0:
-		if(time >= 180){
-			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-			longE_buzhou = 1;
-			beginTimeLongE = nowTime;
+		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
+		beginLong_E_Time = nowTime;
+		while(nowTime - beginLong_E_Time < 500){
+			nowTime = timeGetTime();
 		}
-		break;
-	case 1:
-		if(time >= 100){
-			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-			longE_buzhou = 2;
-			beginTimeLongE = nowTime;
-		}
-		break;
-	case 2:
-		if(time >= 500){
-			keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-			longE_buzhou = 1;
-			beginTimeLongE = nowTime;
-		}
+		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+		longE_buzhou = 0;
 		break;
 	}
 }
 
 void longE_Up(int willSelecteCharacter){
-	keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+	
 }
 
 
@@ -431,7 +437,7 @@ void dilukeHold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - changeDilukeTime < 200){
+	if(nowTime - changeDilukeTime < 250){
 		return;
 	}
 
@@ -485,7 +491,7 @@ void E_A_Hold(int willSelecteCharacter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - change_E_A_Time < 200){
+	if(nowTime - change_E_A_Time < 250){
 		return;
 	}
 
