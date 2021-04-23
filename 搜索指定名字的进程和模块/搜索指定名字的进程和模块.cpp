@@ -52,16 +52,13 @@ HMODULE myGetHModuleHandle(DWORD PID, LPCTSTR lpModuleName){
 }
 
 int main(){
-	
-	//获取指定名字的进程的PID和指定名字的模块句柄
-	//打开笔记本程序后运行本程序（C:/Windows/System32/notepad.exe）
 	//进程名
-	LPCTSTR str = L"notepad.exe";
+	LPCTSTR str = L"YuanShen.exe";
 	//获取进程的PID
-	DWORD PID_notepad = getProcessID(str);
-	printf("PID:%d\n", PID_notepad);
+	DWORD PID = getProcessID(str);
+	printf("PID:%d\n", PID);
 	//获取一个进程中的指定模块名字的模块句柄
-	HMODULE hModule = myGetHModuleHandle(PID_notepad, L"notepad.exe");
+	HMODULE hModule = myGetHModuleHandle(PID, L"YuanShen.exe");
 	printf("HMODULE:%x\n", (DWORD)hModule);
 	return 0;
 }
