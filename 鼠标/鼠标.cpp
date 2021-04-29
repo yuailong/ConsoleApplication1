@@ -6,19 +6,11 @@
 #include <timeapi.h>
 #pragma comment(lib, "Winmm.lib")
 
-#define E键虚拟码 0x45
-#define E键扫描码 18
+#define E_KeyVirtualCode 0x45 //E键虚拟码
+#define E_KeyScanCode 18 //E键扫描码
 
-#define Q键虚拟码 0x51
-#define Q键扫描码 56
-
-#define 开关键_F8_虚拟码 VK_F8
-#define 一队_F9_虚拟码 VK_F9
-#define 二队_F10_虚拟码 VK_F10
-#define 三队_F10_虚拟码 VK_F11
-#define 四队_F10_虚拟码 VK_F12
-
-#define 切换硬直时间 250
+#define Q_KeyVirtualCode 0x51 //Q键虚拟码
+#define Q_KeyScanCode 56 //Q键扫描码
 
 
 //当前角色
@@ -36,16 +28,21 @@
 #define SelectedCharacter2_Q_E 4002			//在2号位的，先Q后E的角色
 #define SelectedCharacter3_Q_E 4003			//在3号位的，先Q后E的角色
 #define SelectedCharacter4_Q_E 4004			//在4号位的，先Q后E的角色
+#define SelectedCharacter1_E_Q 5001			//在1号位的，先Q后E的角色
+#define SelectedCharacter2_E_Q 5002			//在2号位的，先Q后E的角色
+#define SelectedCharacter3_E_Q 5003			//在3号位的，先Q后E的角色
+#define SelectedCharacter4_E_Q 5004			//在4号位的，先Q后E的角色
+#define SelectedCharacter_Keli 6001			//可莉
 
 
-
+DWORD changeDelay = 250; //切换硬直时间
 bool isNeedModifyTeam = 0;//是否需要修改队员
 int selectedCharacterBefore = SelectedCharacter1_E_A;
 int selectedCharacterAfter = SelectedCharacter1_E_A;
-int team1[4] = { SelectedCharacter1_E_A, SelectedCharacter2_Q_E, SelectedCharacter_Diluke, SelectedCharacter4_E_A };
-int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter_Keqing, SelectedCharacter4_Q_E };
+int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
+int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter2_E_A, SelectedCharacter_Keqing };
 int team3[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A };
-int team4[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_LongE, SelectedCharacter4_Q_E };
+int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
 int(*pSelectedTeam)[4] = &team1;
 
 SHORT kaiguanKeyStateBefore = 0;
@@ -69,6 +66,10 @@ SHORT team2KeyStateAfter = 0;
 SHORT team3KeyStateAfter = 0;
 SHORT team4KeyStateAfter = 0;
 SHORT mouseSideKey2StateAfter = 0;
+
+HWND hYuanShenWindow;//原神窗口句柄
+HWND hForegroundWindow;//前景窗口
+int count = 0;
 
 void keyDown(int selectedCharacterAfter);
 void keyHold(int selectedCharacterAfter);
@@ -99,78 +100,107 @@ void Q_E_Down(int selectedCharacterAfter);//按下
 void Q_E_Hold(int selectedCharacterAfter);//按住
 void Q_E_Up(int selectedCharacterAfter);//弹起
 
-HWND hWindow;//原神窗口句柄
+//先E后Q的角色
+void E_Q_Down(int selectedCharacterAfter);//按下
+void E_Q_Hold(int selectedCharacterAfter);//按住
+void E_Q_Up(int selectedCharacterAfter);//弹起
+
+//可莉
+void keliDown(int selectedCharacterAfter);//按下
+void keliHold(int selectedCharacterAfter);//按住
+void keliUp(int selectedCharacterAfter);//弹起
+
+void printCode();
+void printSelectedCode();
+
 int main(){
 	/*
 	if(GetAsyncKeyState(VK_F8)){
-		printf("F8的扫描码：%d\n", MapVirtualKeyA(VK_F8, 0));
+		//printf("F8的扫描码：%d\n", MapVirtualKeyA(VK_F8, 0));
 	}
 	*/
-	hWindow = FindWindowA("UnityWndClass", "原神");
+	hYuanShenWindow = FindWindowA("UnityWndClass", "原神");
 
 	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n------------------------------------------------\n");
-	printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\n", SelectedCharacter_Diluke, SelectedCharacter_Keqing, SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A, SelectedCharacter1_LongE, SelectedCharacter2_LongE, SelectedCharacter3_LongE, SelectedCharacter4_LongE, SelectedCharacter1_Q_E, SelectedCharacter2_Q_E, SelectedCharacter3_Q_E, SelectedCharacter4_Q_E);
+	printCode();
 	printf("已选择一队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
 
 	while(true){
-		
-		modifyTeamKeyStateAfter = GetAsyncKeyState(开关键_F8_虚拟码);
-		if(kaiguanKeyStateBefore && !modifyTeamKeyStateAfter){//正在抬起开关键
-			isNeedModifyTeam = !isNeedModifyTeam;
+		if(count % 100000 == 0){
+			hForegroundWindow = GetForegroundWindow();
+
+			modifyTeamKeyStateAfter = GetAsyncKeyState(VK_F8);
+			if(kaiguanKeyStateBefore && !modifyTeamKeyStateAfter){//正在抬起开关键
+				isNeedModifyTeam = !isNeedModifyTeam;
+			}
+			kaiguanKeyStateBefore = modifyTeamKeyStateAfter;
+			if(isNeedModifyTeam){
+				printCode();
+				printf("修改4个队员的代码，用空格键分隔：");
+				fflush(stdin);//将输入缓冲区清空
+				int a = 0;
+				int b = 0;
+				int c = 0;
+				int d = 0;
+				scanf_s("%d %d %d %d", &a, &b, &c, &d);
+				if(a && b && c && d){
+					(*pSelectedTeam)[0] = a;
+					(*pSelectedTeam)[1] = b;
+					(*pSelectedTeam)[2] = c;
+					(*pSelectedTeam)[3] = d;
+					printf("已选择%d,%d,%d,%d\n--------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
+				}
+				else{
+					printf("没修改\n--------------------------------------------------\n");
+				}
+				isNeedModifyTeam = 0;
+			}
+
+			team1KeyStateAfter = GetAsyncKeyState(VK_F9);
+			team2KeyStateAfter = GetAsyncKeyState(VK_F10);
+			team3KeyStateAfter = GetAsyncKeyState(VK_F11);
+			team4KeyStateAfter = GetAsyncKeyState(VK_F12);
+			if(team1KeyStateBefore && !team1KeyStateAfter){
+				pSelectedTeam = &team1;
+				printCode();
+				printf("已选择一队：");
+				printSelectedCode();
+			}
+			else if(team2KeyStateBefore && !team2KeyStateAfter){
+				pSelectedTeam = &team2;
+				printCode();
+				printf("已选择二队：");
+				printSelectedCode();
+			}
+			else if(team3KeyStateBefore && !team3KeyStateAfter){
+				pSelectedTeam = &team3;
+				printCode();
+				printf("已选择三队：");
+				printSelectedCode();
+			}
+			else if(team4KeyStateBefore && !team4KeyStateAfter){
+				pSelectedTeam = &team4;
+				printCode();
+				printf("已选择四队：");
+				printSelectedCode();
+			}
+
+			team1KeyStateBefore = team1KeyStateAfter;
+			team2KeyStateBefore = team2KeyStateAfter;
+			team3KeyStateBefore = team3KeyStateAfter;
+			team4KeyStateBefore = team4KeyStateAfter;
 		}
-		kaiguanKeyStateBefore = modifyTeamKeyStateAfter;
-		if(isNeedModifyTeam){
-			printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\n", SelectedCharacter_Diluke, SelectedCharacter_Keqing, SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A, SelectedCharacter1_LongE, SelectedCharacter2_LongE, SelectedCharacter3_LongE, SelectedCharacter4_LongE, SelectedCharacter1_Q_E, SelectedCharacter2_Q_E, SelectedCharacter3_Q_E, SelectedCharacter4_Q_E);
-			printf("修改4个队员的代码，用空格键分隔：");
-			fflush(stdin);//将输入缓冲区清空
-			int a = 0;
-			int b = 0;
-			int c = 0;
-			int d = 0;
-			scanf_s("%d %d %d %d", &a, &b, &c, &d);
-			if(a && b && c && d){
-				(*pSelectedTeam)[0] = a;
-				(*pSelectedTeam)[1] = b;
-				(*pSelectedTeam)[2] = c;
-				(*pSelectedTeam)[3] = d;
-				printf("已选择%d,%d,%d,%d\n--------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-			}
-			else{
-				printf("没修改\n--------------------------------------------------\n");
-			}
-			isNeedModifyTeam = 0;
+		count++;
+
+		if(hForegroundWindow != hYuanShenWindow){
+			continue;
 		}
 
-		team1KeyStateAfter = GetAsyncKeyState(一队_F9_虚拟码);
-		team2KeyStateAfter = GetAsyncKeyState(二队_F10_虚拟码);
-		team3KeyStateAfter = GetAsyncKeyState(三队_F10_虚拟码);
-		team4KeyStateAfter = GetAsyncKeyState(四队_F10_虚拟码);
 		key1StateAfter = GetAsyncKeyState(0x31);
 		key2StateAfter = GetAsyncKeyState(0x32);
 		key3StateAfter = GetAsyncKeyState(0x33);
 		key4StateAfter = GetAsyncKeyState(0x34);
 		mouseSideKey2StateAfter = GetAsyncKeyState(VK_XBUTTON1);
-
-		if(team1KeyStateBefore && !team1KeyStateAfter){
-			pSelectedTeam = &team1;
-			printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\n", SelectedCharacter_Diluke, SelectedCharacter_Keqing, SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A, SelectedCharacter1_LongE, SelectedCharacter2_LongE, SelectedCharacter3_LongE, SelectedCharacter4_LongE, SelectedCharacter1_Q_E, SelectedCharacter2_Q_E, SelectedCharacter3_Q_E, SelectedCharacter4_Q_E);
-			printf("已选择一队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-		}
-		else if(team2KeyStateBefore && !team2KeyStateAfter){
-			pSelectedTeam = &team2;
-			printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\n", SelectedCharacter_Diluke, SelectedCharacter_Keqing, SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A, SelectedCharacter1_LongE, SelectedCharacter2_LongE, SelectedCharacter3_LongE, SelectedCharacter4_LongE, SelectedCharacter1_Q_E, SelectedCharacter2_Q_E, SelectedCharacter3_Q_E, SelectedCharacter4_Q_E);
-			printf("已选择二队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-		}
-		else if(team3KeyStateBefore && !team3KeyStateAfter){
-			pSelectedTeam = &team3;
-			printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\n", SelectedCharacter_Diluke, SelectedCharacter_Keqing, SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A, SelectedCharacter1_LongE, SelectedCharacter2_LongE, SelectedCharacter3_LongE, SelectedCharacter4_LongE, SelectedCharacter1_Q_E, SelectedCharacter2_Q_E, SelectedCharacter3_Q_E, SelectedCharacter4_Q_E);
-			printf("已选择三队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-		}
-		else if(team4KeyStateBefore && !team4KeyStateAfter){
-			pSelectedTeam = &team4;
-			printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\n", SelectedCharacter_Diluke, SelectedCharacter_Keqing, SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A, SelectedCharacter1_LongE, SelectedCharacter2_LongE, SelectedCharacter3_LongE, SelectedCharacter4_LongE, SelectedCharacter1_Q_E, SelectedCharacter2_Q_E, SelectedCharacter3_Q_E, SelectedCharacter4_Q_E);
-			printf("已选择四队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-		}
 
 		if(!key1StateBefore && key1StateAfter){
 			selectedCharacterAfter = (*pSelectedTeam)[0];
@@ -222,10 +252,6 @@ int main(){
 			keyUp(selectedCharacterAfter);
 		}
 
-		team1KeyStateBefore = team1KeyStateAfter;
-		team2KeyStateBefore = team2KeyStateAfter;
-		team3KeyStateBefore = team3KeyStateAfter;
-		team4KeyStateBefore = team4KeyStateAfter;
 		key1StateBefore = key1StateAfter;
 		key2StateBefore = key2StateAfter;
 		key3StateBefore = key3StateAfter;
@@ -265,6 +291,17 @@ void keyDown(int selectedCharacterAfter){
 	case SelectedCharacter4_Q_E:
 		Q_E_Down(selectedCharacterAfter);
 		break;
+
+	case SelectedCharacter1_E_Q:
+	case SelectedCharacter2_E_Q:
+	case SelectedCharacter3_E_Q:
+	case SelectedCharacter4_E_Q:
+		E_Q_Down(selectedCharacterAfter);
+		break;
+
+	case SelectedCharacter_Keli:
+		keliDown(selectedCharacterAfter);
+		break;
 	}
 }
 
@@ -297,6 +334,17 @@ void keyHold(int selectedCharacterAfter){
 	case SelectedCharacter3_Q_E:
 	case SelectedCharacter4_Q_E:
 		Q_E_Hold(selectedCharacterAfter);
+		break;
+
+	case SelectedCharacter1_E_Q:
+	case SelectedCharacter2_E_Q:
+	case SelectedCharacter3_E_Q:
+	case SelectedCharacter4_E_Q:
+		E_Q_Hold(selectedCharacterAfter);
+		break;
+
+	case SelectedCharacter_Keli:
+		keliHold(selectedCharacterAfter);
 		break;
 	}
 }
@@ -331,26 +379,33 @@ void keyUp(int selectedCharacterAfter){
 	case SelectedCharacter4_Q_E:
 		Q_E_Up(selectedCharacterAfter);
 		break;
+
+	case SelectedCharacter1_E_Q:
+	case SelectedCharacter2_E_Q:
+	case SelectedCharacter3_E_Q:
+	case SelectedCharacter4_E_Q:
+		E_Q_Up(selectedCharacterAfter);
+		break;
+
+	case SelectedCharacter_Keli:
+		keliUp(selectedCharacterAfter);
+		break;
 	}
 }
 
 
 
 
-
-#define 刻晴步骤1_E 1
-#define 刻晴步骤2_等待50毫秒 2
-#define 刻晴步骤3_按下左键 3
-#define 刻晴步骤4_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒 4
-#define 刻晴步骤5_如果重击完毕则弹起鼠标跳到第7步_否则E 5
-#define 刻晴步骤6_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒回到第5步 6
-#define 刻晴步骤7_等待50毫秒回到第3步 7
-
-
-#define 刻晴重击按住时间 400
-#define 刻晴重击松开鼠标后等待时间 100
-
-int keqingBuzhou = 刻晴步骤1_E;
+/*
+步骤1 E，下一步
+步骤2 等待50毫秒，下一步
+步骤3 按下左键，下一步
+步骤4 如果重击完毕则弹起鼠标跳到第7步，否则等待50毫秒，下一步
+步骤5 如果重击完毕则弹起鼠标跳到第7步，否则E，下一步
+步骤6 如果重击完毕则弹起鼠标跳到第7步，否则等待50毫秒回到第5步
+步骤7 等待50毫秒回到第3步
+*/
+int keqingBuzhou = 1;
 DWORD changeKeqingTime = 0;//切换到刻晴的时间
 DWORD keqing_E_Time = 0;
 DWORD keqing_MouseDown_Time = 0;
@@ -360,120 +415,113 @@ void keqingDown(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeKeqingTime = timeGetTime();
 	}
-	keqingBuzhou = 刻晴步骤1_E;
+	keqingBuzhou = 1;
 }
 
 void keqingHold(int selectedCharacterAfter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - changeKeqingTime < 切换硬直时间){
+	if(nowTime - changeKeqingTime < changeDelay){
 		return;
 	}
 
 	switch(keqingBuzhou){
-	case 刻晴步骤1_E:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+	case 1:
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
 		keqing_E_Time = nowTime;
-		keqingBuzhou = 刻晴步骤2_等待50毫秒;
+		keqingBuzhou = 2;
 		break;
 
-	case 刻晴步骤2_等待50毫秒:
+	case 2:
 		if(nowTime - keqing_E_Time >= 50){
-			keqingBuzhou = 刻晴步骤3_按下左键;
+			keqingBuzhou = 3;
 		}
 		break;
 
-	case 刻晴步骤3_按下左键:
+	case 3:
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 		keqing_MouseDown_Time = nowTime;
-		keqingBuzhou = 刻晴步骤4_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒;
+		keqingBuzhou = 4;
 		break;
 
-	case 刻晴步骤4_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒:
-		if(nowTime - keqing_MouseDown_Time >= 刻晴重击按住时间){
+	case 4:
+		if(nowTime - keqing_MouseDown_Time >= 400){
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
 			keqing_MouseUp_Time = nowTime;
-			keqingBuzhou = 刻晴步骤7_等待50毫秒回到第3步;
+			keqingBuzhou = 7;
 		}
 		else if(nowTime - keqing_MouseDown_Time > 50){
-			keqingBuzhou = 刻晴步骤5_如果重击完毕则弹起鼠标跳到第7步_否则E;
+			keqingBuzhou = 5;
 		}
 		break;
 
-	case 刻晴步骤5_如果重击完毕则弹起鼠标跳到第7步_否则E:
-		if(nowTime - keqing_MouseDown_Time >= 刻晴重击按住时间){
+	case 5:
+		if(nowTime - keqing_MouseDown_Time >= 400){
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
 			keqing_MouseUp_Time = nowTime;
-			keqingBuzhou = 刻晴步骤7_等待50毫秒回到第3步;
+			keqingBuzhou = 7;
 		}
 		else{
-			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-			keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+			keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
 			keqing_E_Time = nowTime;
-			keqingBuzhou = 刻晴步骤6_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒回到第5步;
+			keqingBuzhou = 6;
 		}
 		break;
 
-	case 刻晴步骤6_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒回到第5步:
-		if(nowTime - keqing_MouseDown_Time >= 刻晴重击按住时间){
+	case 6:
+		if(nowTime - keqing_MouseDown_Time >= 400){
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
 			keqing_MouseUp_Time = nowTime;
-			keqingBuzhou = 刻晴步骤7_等待50毫秒回到第3步;
+			keqingBuzhou = 7;
 		}
 		else if(nowTime - keqing_E_Time >= 50){
-			keqingBuzhou = 刻晴步骤5_如果重击完毕则弹起鼠标跳到第7步_否则E;
+			keqingBuzhou = 5;
 		}
 		break;
 
-	case 刻晴步骤7_等待50毫秒回到第3步:
-		if(nowTime - keqing_MouseUp_Time >= 刻晴重击松开鼠标后等待时间){
-			keqingBuzhou = 刻晴步骤3_按下左键;
+	case 7:
+		if(nowTime - keqing_MouseUp_Time >= 100){
+			keqingBuzhou = 3;
 		}
 		break;
 	}
 }
 
 void keqingUp(int selectedCharacterAfter){
-	if(keqingBuzhou == 刻晴步骤4_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒 || keqingBuzhou == 刻晴步骤5_如果重击完毕则弹起鼠标跳到第7步_否则E || keqingBuzhou == 刻晴步骤6_如果重击完毕则弹起鼠标跳到第7步_否则等待50毫秒回到第5步){
+	if(keqingBuzhou == 4 || keqingBuzhou == 5 || keqingBuzhou == 6){
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
 	}
 }
 
 
-DWORD longE_buzhou = 0;
 DWORD changeLong_E_Time = 0;//切换到长按E的角色的时间
 DWORD beginLong_E_Time = 0;//按下E键的时间
 void longE_Down(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
-		longE_buzhou = 0;//刚切换到这个角色时从第0步开始
 		changeLong_E_Time = timeGetTime();
+	}
+	DWORD nowTime = timeGetTime();
+
+	//等待切换硬直时间
+	while(nowTime - changeLong_E_Time < changeDelay){
+		nowTime = timeGetTime();
+	}
+	keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+	beginLong_E_Time = nowTime;
+	while(nowTime - beginLong_E_Time < 800){
+		nowTime = timeGetTime();
+	}
+	keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+	while(nowTime - beginLong_E_Time < 100){
+		nowTime = timeGetTime();
 	}
 }
 
 void longE_Hold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
-
-	//等待切换硬直时间
-	if(nowTime - changeLong_E_Time < 切换硬直时间){
-		return;
-	}
-
-	switch(longE_buzhou){
-	case 0:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-		beginLong_E_Time = nowTime;
-		while(nowTime - beginLong_E_Time < 400){
-			nowTime = timeGetTime();
-		}
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
-		while(nowTime - beginLong_E_Time < 500){
-			nowTime = timeGetTime();
-		}
-		longE_buzhou = 0;
-		break;
-	}
+	
 }
 
 void longE_Up(int selectedCharacterAfter){
@@ -481,10 +529,7 @@ void longE_Up(int selectedCharacterAfter){
 }
 
 
-#define 步骤_迪卢克等待50毫秒 2
-#define 步骤_迪卢克E或者A 1
-
-int dilukeBuzhou = 步骤_迪卢克E或者A;
+int dilukeBuzhou = 1;
 DWORD changeDilukeTime = 0;//切换到迪卢克的时间
 DWORD diluke_E_or_A_Time = 0;//迪卢克上一次E或者A的时间
 DWORD diluke_E_time = 0;//迪卢克上一次E的时间
@@ -500,28 +545,28 @@ void dilukeHold(int selectedCharacterAfter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - changeDilukeTime < 切换硬直时间){
+	if(nowTime - changeDilukeTime < changeDelay){
 		return;
 	}
 
 	switch(dilukeBuzhou){
-	case 步骤_迪卢克E或者A:
-		if(nowTime - diluke_E_time >= 1000){
-			keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-			keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+	case 1:
+		if(nowTime - diluke_E_time >= 2000){
+			keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
 			diluke_E_time = nowTime;
 		}
 		else{
 			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 		}
-		dilukeBuzhou = 步骤_迪卢克等待50毫秒;
+		dilukeBuzhou = 2;
 		diluke_E_or_A_Time = nowTime;
 		break;
 
-	case 步骤_迪卢克等待50毫秒:
+	case 2:
 		if(nowTime - diluke_E_or_A_Time >= 100){
-			dilukeBuzhou = 步骤_迪卢克E或者A;
+			dilukeBuzhou = 1;
 		}
 		break;
 	}
@@ -530,6 +575,7 @@ void dilukeHold(int selectedCharacterAfter){
 void dilukeUp(int selectedCharacterAfter){
 
 }
+
 
 int E_A_Buzhou = 0;
 DWORD change_E_A_Time = 0;//切换到这个角色的时间
@@ -547,14 +593,14 @@ void E_A_Hold(int selectedCharacterAfter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - change_E_A_Time < 切换硬直时间){
+	if(nowTime - change_E_A_Time < changeDelay){
 		return;
 	}
 
 	switch(E_A_Buzhou){
 	case 0:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);//按下E键
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);//弹起E键
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
 		E_A_Buzhou = 1;
 		E_Time = nowTime;
 		break;
@@ -585,6 +631,7 @@ void E_A_Up(int selectedCharacterAfter){
 }
 
 
+//先Q再E再A
 int Q_E_Buzhou = 0;
 DWORD change_Q_E_Time = 0;//切换到这个角色的时间
 DWORD QE_buzhou1_Time = 0;
@@ -602,14 +649,15 @@ void Q_E_Hold(int selectedCharacterAfter){
 	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
-	if(nowTime - change_Q_E_Time < 切换硬直时间){
+	if(nowTime - change_Q_E_Time < changeDelay){
 		return;
 	}
 
+
 	switch(Q_E_Buzhou){
 	case 1:
-		keybd_event(Q键虚拟码, Q键扫描码, 0, 0);
-		keybd_event(Q键虚拟码, Q键扫描码, KEYEVENTF_KEYUP, 0);
+		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, 0, 0);
+		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, KEYEVENTF_KEYUP, 0);
 		QE_buzhou1_Time = nowTime;
 		Q_E_Buzhou = 2;
 		break;
@@ -621,8 +669,8 @@ void Q_E_Hold(int selectedCharacterAfter){
 		break;
 
 	case 3:
-		keybd_event(E键虚拟码, E键扫描码, 0, 0);
-		keybd_event(E键虚拟码, E键扫描码, KEYEVENTF_KEYUP, 0);
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
 		QE_buzhou3_Time = nowTime;
 		Q_E_Buzhou = 4;
 		break;
@@ -633,6 +681,7 @@ void Q_E_Hold(int selectedCharacterAfter){
 		}
 		break;
 
+
 	case 5:
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
@@ -641,14 +690,196 @@ void Q_E_Hold(int selectedCharacterAfter){
 		break;
 
 	case 6:
-		if(nowTime - QE_buzhou5_Time >= 100){
+		if(nowTime - QE_buzhou5_Time >= 50){
 			Q_E_Buzhou = 1;
 		}
 		break;
 	}
 }
 
-
 void Q_E_Up(int selectedCharacterAfter){
 
 }
+
+
+
+int E_Q_Buzhou = 1;
+DWORD change_E_Q_Time = 0;//切换到这个角色的时间
+DWORD EQ_buzhou1_Time = 0;
+DWORD EQ_buzhou3_Time = 0;
+DWORD EQ_buzhou5_Time = 0;
+void E_Q_Down(int selectedCharacterAfter){
+	if(selectedCharacterBefore != selectedCharacterAfter){
+		selectedCharacterBefore = selectedCharacterAfter;
+		change_E_Q_Time = timeGetTime();
+	}
+	E_Q_Buzhou = 1;
+}
+
+void E_Q_Hold(int selectedCharacterAfter){
+	DWORD nowTime = timeGetTime();
+
+	//等待切换硬直时间
+	if(nowTime - change_E_Q_Time < changeDelay){
+		return;
+	}
+
+	switch(E_Q_Buzhou){
+	case 1:
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		EQ_buzhou1_Time = nowTime;
+		E_Q_Buzhou = 2;
+		break;
+
+	case 2:
+		if(nowTime - EQ_buzhou1_Time >= 100){
+			E_Q_Buzhou = 3;
+		}
+		break;
+
+	case 3:
+		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, 0, 0);
+		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		EQ_buzhou3_Time = nowTime;
+		E_Q_Buzhou = 4;
+		break;
+
+	case 4:
+		if(nowTime - EQ_buzhou3_Time >= 100){
+			E_Q_Buzhou = 5;
+		}
+		break;
+
+
+	case 5:
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+		EQ_buzhou5_Time = nowTime;
+		E_Q_Buzhou = 6;
+		break;
+
+	case 6:
+		if(nowTime - EQ_buzhou5_Time >= 50){
+			E_Q_Buzhou = 1;
+		}
+		break;
+	}
+}
+
+
+void E_Q_Up(int selectedCharacterAfter){
+
+}
+
+
+//可莉，有E用E，A第一下+重击
+int keliBuzhou = 1;
+DWORD changeKeliTime = 0;//切换到这个角色的时间
+DWORD keli_E_Time = 0;
+DWORD keliFirst_A_Time = 0;
+DWORD keliSecond_A_Time = 0;
+DWORD keliBuzhou2_Time = 0;
+DWORD keliBuzhou5_Time = 0;
+DWORD keliBuzhou6_Time = 0;
+void keliDown(int selectedCharacterAfter){
+	if(selectedCharacterBefore != selectedCharacterAfter){
+		selectedCharacterBefore = selectedCharacterAfter;
+		changeKeliTime = timeGetTime();
+	}
+	keliBuzhou = 1;
+}
+
+void keliHold(int selectedCharacterAfter){
+	DWORD nowTime = timeGetTime();
+
+	//等待切换硬直时间
+	if(nowTime - changeKeliTime < changeDelay){
+		return;
+	}
+
+	switch(keliBuzhou){
+	case 1:
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keli_E_Time = nowTime;
+		keliBuzhou = 2;
+		break;
+
+	case 2:
+		if(nowTime - keli_E_Time >= 100){
+			keliBuzhou = 3;
+		}
+		break;
+
+	case 3:
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+		keliFirst_A_Time = nowTime;
+		keliBuzhou = 4;
+		break;
+
+	case 4:
+		if(nowTime - keliFirst_A_Time >= 200){
+			keliBuzhou2_Time = nowTime;
+			keliBuzhou = 5;
+		}
+		break;
+
+	case 5:
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+		keliBuzhou5_Time = nowTime;
+		keliBuzhou = 6;
+		break;
+
+	case 6:
+		if(nowTime - keliBuzhou5_Time > 900){
+			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+			keliBuzhou6_Time = nowTime;
+			keliBuzhou = 7;
+		}
+		break;
+
+	case 7:
+		if(nowTime - keliBuzhou6_Time >= 100){
+			keliBuzhou = 1;
+		}
+		break;
+	}
+}
+
+void keliUp(int selectedCharacterAfter){
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+}
+
+
+void printCode(){
+	printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\nEQ     %d %d %d %d\n",
+		   SelectedCharacter_Diluke,
+		   SelectedCharacter_Keqing,
+		   SelectedCharacter1_E_A,
+		   SelectedCharacter2_E_A,
+		   SelectedCharacter3_E_A,
+		   SelectedCharacter4_E_A,
+		   SelectedCharacter1_LongE,
+		   SelectedCharacter2_LongE,
+		   SelectedCharacter3_LongE,
+		   SelectedCharacter4_LongE,
+		   SelectedCharacter1_Q_E,
+		   SelectedCharacter2_Q_E,
+		   SelectedCharacter3_Q_E,
+		   SelectedCharacter4_Q_E,
+		   SelectedCharacter1_E_Q,
+		   SelectedCharacter2_E_Q,
+		   SelectedCharacter3_E_Q,
+		   SelectedCharacter4_E_Q
+	);
+}
+
+void printSelectedCode(){
+	printf("%d, %d, %d, %d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
+}
+
+
