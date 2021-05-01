@@ -39,7 +39,7 @@ DWORD changeDelay = 250; //切换硬直时间
 bool isNeedModifyTeam = 0;//是否需要修改队员
 int selectedCharacterBefore = SelectedCharacter1_E_A;
 int selectedCharacterAfter = SelectedCharacter1_E_A;
-int team1[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
+int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter2_Q_E, SelectedCharacter2_Q_E, SelectedCharacter_Diluke };
 int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter_Keqing, SelectedCharacter4_E_A };
 int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
 int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
@@ -422,8 +422,6 @@ void keqingDown(int selectedCharacterAfter){
 }
 
 void keqingHold(int selectedCharacterAfter){
-
-
 	//等待切换硬直时间
 	if(nowTime - changeKeqingTime < changeDelay){
 		return;
@@ -560,18 +558,17 @@ void longE_Up(int selectedCharacterAfter){
 int dilukeBuzhou = 1;
 DWORD changeDilukeTime = 0;//切换到迪卢克的时间
 DWORD diluke_E_or_A_Time = 0;//迪卢克上一次E或者A的时间
-DWORD diluke_E_time = 0;//迪卢克上一次E的时间
+DWORD diluke_E_Time = 0;//迪卢克上一次E的时间
 
 void dilukeDown(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeDilukeTime = timeGetTime();
 		diluke_E_or_A_Time = changeDilukeTime;
 	}
+	diluke_E_Time = nowTime - 500;
 }
 
 void dilukeHold(int selectedCharacterAfter){
-
-
 	//等待切换硬直时间
 	if(nowTime - changeDilukeTime < changeDelay){
 		return;
@@ -579,10 +576,10 @@ void dilukeHold(int selectedCharacterAfter){
 
 	switch(dilukeBuzhou){
 	case 1:
-		if(nowTime - diluke_E_time >= 2000){
+		if(nowTime - diluke_E_Time >= 2000){
 			keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
 			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
-			diluke_E_time = nowTime;
+			diluke_E_Time = nowTime;
 		}
 		else{
 			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
@@ -674,13 +671,10 @@ void Q_E_Down(int selectedCharacterAfter){
 }
 
 void Q_E_Hold(int selectedCharacterAfter){
-
-
 	//等待切换硬直时间
 	if(nowTime - change_Q_E_Time < changeDelay){
 		return;
 	}
-
 
 	switch(Q_E_Buzhou){
 	case 1:
@@ -709,7 +703,6 @@ void Q_E_Hold(int selectedCharacterAfter){
 		}
 		break;
 
-
 	case 5:
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
@@ -730,7 +723,6 @@ void Q_E_Up(int selectedCharacterAfter){
 }
 
 
-
 int E_Q_Buzhou = 1;
 DWORD change_E_Q_Time = 0;//切换到这个角色的时间
 DWORD EQ_buzhou1_Time = 0;
@@ -745,8 +737,6 @@ void E_Q_Down(int selectedCharacterAfter){
 }
 
 void E_Q_Hold(int selectedCharacterAfter){
-
-
 	//等待切换硬直时间
 	if(nowTime - change_E_Q_Time < changeDelay){
 		return;
@@ -779,7 +769,6 @@ void E_Q_Hold(int selectedCharacterAfter){
 		}
 		break;
 
-
 	case 5:
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
@@ -794,7 +783,6 @@ void E_Q_Hold(int selectedCharacterAfter){
 		break;
 	}
 }
-
 
 void E_Q_Up(int selectedCharacterAfter){
 
@@ -819,8 +807,6 @@ void keliDown(int selectedCharacterAfter){
 }
 
 void keliHold(int selectedCharacterAfter){
-
-
 	//等待切换硬直时间
 	if(nowTime - changeKeliTime < changeDelay){
 		return;
