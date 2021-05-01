@@ -39,9 +39,9 @@ DWORD changeDelay = 250; //切换硬直时间
 bool isNeedModifyTeam = 0;//是否需要修改队员
 int selectedCharacterBefore = SelectedCharacter1_E_A;
 int selectedCharacterAfter = SelectedCharacter1_E_A;
-int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
-int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter2_E_A, SelectedCharacter_Keqing };
-int team3[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_E_A, SelectedCharacter4_E_A };
+int team1[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
+int team2[4] = { SelectedCharacter1_E_A, SelectedCharacter2_E_A, SelectedCharacter_Keqing, SelectedCharacter4_E_A };
+int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
 int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
 int(*pSelectedTeam)[4] = &team1;
 
@@ -67,6 +67,7 @@ SHORT team3KeyStateAfter = 0;
 SHORT team4KeyStateAfter = 0;
 SHORT mouseSideKey2StateAfter = 0;
 
+DWORD nowTime = 0;
 HWND hYuanShenWindow;//原神窗口句柄
 HWND hForegroundWindow;//前景窗口
 int count = 0;
@@ -195,6 +196,8 @@ int main(){
 		if(hForegroundWindow != hYuanShenWindow){
 			continue;
 		}
+
+		nowTime = timeGetTime();
 
 		key1StateAfter = GetAsyncKeyState(0x31);
 		key2StateAfter = GetAsyncKeyState(0x32);
@@ -419,7 +422,7 @@ void keqingDown(int selectedCharacterAfter){
 }
 
 void keqingHold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
+
 
 	//等待切换硬直时间
 	if(nowTime - changeKeqingTime < changeDelay){
@@ -499,33 +502,58 @@ void keqingUp(int selectedCharacterAfter){
 
 DWORD changeLong_E_Time = 0;//切换到长按E的角色的时间
 DWORD beginLong_E_Time = 0;//按下E键的时间
+DWORD long_E_buzhou = 0;
+DWORD long_E_A_Time = 0;
 void longE_Down(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeLong_E_Time = timeGetTime();
 	}
-	DWORD nowTime = timeGetTime();
 
 	//等待切换硬直时间
 	while(nowTime - changeLong_E_Time < changeDelay){
 		nowTime = timeGetTime();
 	}
-	keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
-	beginLong_E_Time = nowTime;
-	while(nowTime - beginLong_E_Time < 800){
-		nowTime = timeGetTime();
-	}
-	keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
-	while(nowTime - beginLong_E_Time < 100){
-		nowTime = timeGetTime();
-	}
+
+	long_E_buzhou = 0;
 }
 
+
 void longE_Hold(int selectedCharacterAfter){
-	
+	switch(long_E_buzhou){
+	case 0:
+		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+		beginLong_E_Time = nowTime;
+		long_E_A_Time = nowTime;
+		long_E_buzhou = 1;
+		break;
+
+	case 1:
+		if(nowTime - beginLong_E_Time >= 1000){
+			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+			long_E_buzhou = 2;
+		}
+
+		if(nowTime - long_E_A_Time >= 100){
+			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
+			long_E_A_Time = nowTime;
+			
+		}
+		break;
+
+	case 2:
+		if(nowTime - beginLong_E_Time >= 1100)	{
+			long_E_buzhou = 0;
+		}
+		break;
+	}
 }
 
 void longE_Up(int selectedCharacterAfter){
-
+	while(nowTime - beginLong_E_Time < 1000){
+		nowTime = timeGetTime();
+	}
+	keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
 }
 
 
@@ -542,7 +570,7 @@ void dilukeDown(int selectedCharacterAfter){
 }
 
 void dilukeHold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
+
 
 	//等待切换硬直时间
 	if(nowTime - changeDilukeTime < changeDelay){
@@ -590,7 +618,7 @@ void E_A_Down(int selectedCharacterAfter){
 }
 
 void E_A_Hold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
+
 
 	//等待切换硬直时间
 	if(nowTime - change_E_A_Time < changeDelay){
@@ -646,7 +674,7 @@ void Q_E_Down(int selectedCharacterAfter){
 }
 
 void Q_E_Hold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
+
 
 	//等待切换硬直时间
 	if(nowTime - change_Q_E_Time < changeDelay){
@@ -717,7 +745,7 @@ void E_Q_Down(int selectedCharacterAfter){
 }
 
 void E_Q_Hold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
+
 
 	//等待切换硬直时间
 	if(nowTime - change_E_Q_Time < changeDelay){
@@ -791,7 +819,7 @@ void keliDown(int selectedCharacterAfter){
 }
 
 void keliHold(int selectedCharacterAfter){
-	DWORD nowTime = timeGetTime();
+
 
 	//等待切换硬直时间
 	if(nowTime - changeKeliTime < changeDelay){
@@ -856,7 +884,7 @@ void keliUp(int selectedCharacterAfter){
 
 
 void printCode(){
-	printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\nEQ     %d %d %d %d\n",
+	printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\nEQ     %d %d %d %d\n可莉   %d\n------------------------------------------------\n",
 		   SelectedCharacter_Diluke,
 		   SelectedCharacter_Keqing,
 		   SelectedCharacter1_E_A,
@@ -874,7 +902,8 @@ void printCode(){
 		   SelectedCharacter1_E_Q,
 		   SelectedCharacter2_E_Q,
 		   SelectedCharacter3_E_Q,
-		   SelectedCharacter4_E_Q
+		   SelectedCharacter4_E_Q,
+		   SelectedCharacter_Keli
 	);
 }
 
