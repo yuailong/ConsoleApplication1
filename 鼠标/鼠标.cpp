@@ -564,8 +564,9 @@ void dilukeDown(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeDilukeTime = timeGetTime();
 		diluke_E_or_A_Time = changeDilukeTime;
+		diluke_E_Time = nowTime - 500;
 	}
-	diluke_E_Time = nowTime - 500;
+	
 }
 
 void dilukeHold(int selectedCharacterAfter){
