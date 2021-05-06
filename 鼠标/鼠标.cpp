@@ -4,14 +4,8 @@
 #include <iostream>
 #include <windows.h>
 #include <timeapi.h>
+#include "YSHotKey.h"
 #pragma comment(lib, "Winmm.lib")
-
-#define E_KeyVirtualCode 0x45 //E键虚拟码
-#define E_KeyScanCode 18 //E键扫描码
-
-#define Q_KeyVirtualCode 0x51 //Q键虚拟码
-#define Q_KeyScanCode 56 //Q键扫描码
-
 
 //当前角色
 #define SelectedCharacter_Diluke 1001		//迪卢克
@@ -45,22 +39,13 @@ int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedChara
 int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
 int(*pSelectedTeam)[4] = &team1;
 
-SHORT kaiguanKeyStateBefore = 0;
-SHORT key1StateBefore = 0;
-SHORT key2StateBefore = 0;
-SHORT key3StateBefore = 0;
-SHORT key4StateBefore = 0;
+
 SHORT team1KeyStateBefore = 0;
 SHORT team2KeyStateBefore = 0;
 SHORT team3KeyStateBefore = 0;
 SHORT team4KeyStateBefore = 0;
 SHORT mouseSideKey2StateBefore = 0;//鼠标侧面键2
 
-SHORT modifyTeamKeyStateAfter = 0;//修改队员开关
-SHORT key1StateAfter = 0;
-SHORT key2StateAfter = 0;
-SHORT key3StateAfter = 0;
-SHORT key4StateAfter = 0;
 SHORT team1KeyStateAfter = 0;
 SHORT team2KeyStateAfter = 0;
 SHORT team3KeyStateAfter = 0;
@@ -70,11 +55,24 @@ SHORT mouseSideKey2StateAfter = 0;
 DWORD nowTime = 0;
 HWND hYuanShenWindow;//原神窗口句柄
 HWND hForegroundWindow;//前景窗口
-int count = 0;
+DWORD count = 0;
 
-void keyDown(int selectedCharacterAfter);
-void keyHold(int selectedCharacterAfter);
-void keyUp(int selectedCharacterAfter);
+YSHotKey* hotKey1;
+YSHotKey* hotKey2;
+YSHotKey* hotKey3;
+YSHotKey* hotKey4;
+YSHotKey* hotKeyF8;
+YSHotKey* hotKeyF9;
+YSHotKey* hotKeyF10;
+YSHotKey* hotKeyF11;
+YSHotKey* hotKeyF12;
+YSHotKey* hotKey_mouseSideBtn1;
+
+void keyDownCallback(unsigned char virtualCode);
+void keyHoldCallback(unsigned char virtualCode);
+void keyUpCallback(unsigned char virtualCode);
+void F8_KeyUpCallback(unsigned char virtualCode);
+void F9_to_F12_KeyUpCallback(unsigned char virtualCode);
 
 //刻晴
 void keqingDown(int selectedCharacterAfter);//按下
@@ -115,156 +113,137 @@ void printCode();
 void printSelectedCode();
 
 int main(){
-	/*
-	if(GetAsyncKeyState(VK_F8)){
-		//printf("F8的扫描码：%d\n", MapVirtualKeyA(VK_F8, 0));
-	}
-	*/
-	hYuanShenWindow = FindWindowA("UnityWndClass", "原神");
-
 	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n------------------------------------------------\n");
 	printCode();
 	printf("已选择一队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
 
+	hotKey1 = new YSHotKey("1键",
+						   VirtualCode_1,
+						   0,
+						   keyDownCallback,
+						   keyHoldCallback,
+						   keyUpCallback);
+
+	hotKey2 = new YSHotKey("2键",
+						   VirtualCode_2,
+						   0,
+						   keyDownCallback,
+						   keyHoldCallback,
+						   keyUpCallback);
+
+	hotKey3 = new YSHotKey("3键",
+						   VirtualCode_3,
+						   0,
+						   keyDownCallback,
+						   keyHoldCallback,
+						   keyUpCallback);
+
+	hotKey4 = new YSHotKey("4键",
+						   VirtualCode_4,
+						   0,
+						   keyDownCallback,
+						   keyHoldCallback,
+						   keyUpCallback);
+
+	hotKeyF8 = new YSHotKey("F8键",
+							VirtualCode_F8,
+							0,
+							NULL,
+							NULL,
+							F8_KeyUpCallback);
+
+	hotKeyF9 = new YSHotKey("F9键",
+							VirtualCode_F9,
+							0,
+							NULL,
+							NULL,
+							F9_to_F12_KeyUpCallback);
+
+	hotKeyF10 = new YSHotKey("F10键",
+							 VirtualCode_F10,
+							 0,
+							 NULL,
+							 NULL,
+							 F9_to_F12_KeyUpCallback);
+
+	hotKeyF11 = new YSHotKey("F11键",
+							 VirtualCode_F11,
+							 0,
+							 NULL,
+							 NULL,
+							 F9_to_F12_KeyUpCallback);
+
+	hotKeyF12 = new YSHotKey("F12键",
+							 VirtualCode_F12,
+							 0,
+							 NULL,
+							 NULL,
+							 F9_to_F12_KeyUpCallback);
+
+	hotKey_mouseSideBtn1 = new YSHotKey("鼠标1号侧键",
+										VirtualCode_MouseSideButton1,
+										0,
+										keyDownCallback,
+										keyHoldCallback,
+										keyUpCallback);
+
 	while(true){
-		if(count % 100000 == 0){
+		/*
+		//打印扫描码
+		if(GetAsyncKeyState(VK_F8)){
+			printf("F8的扫描码：%d\n", MapVirtualKeyA(VK_F8, 0));
+		}
+		*/
+
+		//每循环10万次，检测一次F8~F12键
+		if(count % 0x186A0 == 0){
+			hotKeyF8->getHotKeyStateAndCallback();
+			hotKeyF9->getHotKeyStateAndCallback();
+			hotKeyF10->getHotKeyStateAndCallback();
+			hotKeyF11->getHotKeyStateAndCallback();
+			hotKeyF12->getHotKeyStateAndCallback();
+		}
+
+		//每循环160万次，检测一次窗口
+		if(count % 0x186A00 == 0){
+			hYuanShenWindow = FindWindowA("UnityWndClass", "原神");
 			hForegroundWindow = GetForegroundWindow();
-
-			modifyTeamKeyStateAfter = GetAsyncKeyState(VK_F8);
-			if(kaiguanKeyStateBefore && !modifyTeamKeyStateAfter){//正在抬起开关键
-				isNeedModifyTeam = !isNeedModifyTeam;
-			}
-			kaiguanKeyStateBefore = modifyTeamKeyStateAfter;
-			if(isNeedModifyTeam){
-				printCode();
-				printf("修改4个队员的代码，用空格键分隔：");
-				fflush(stdin);//将输入缓冲区清空
-				int a = 0;
-				int b = 0;
-				int c = 0;
-				int d = 0;
-				scanf_s("%d %d %d %d", &a, &b, &c, &d);
-				if(a && b && c && d){
-					(*pSelectedTeam)[0] = a;
-					(*pSelectedTeam)[1] = b;
-					(*pSelectedTeam)[2] = c;
-					(*pSelectedTeam)[3] = d;
-					printf("已选择%d,%d,%d,%d\n--------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-				}
-				else{
-					printf("没修改\n--------------------------------------------------\n");
-				}
-				isNeedModifyTeam = 0;
-			}
-
-			team1KeyStateAfter = GetAsyncKeyState(VK_F9);
-			team2KeyStateAfter = GetAsyncKeyState(VK_F10);
-			team3KeyStateAfter = GetAsyncKeyState(VK_F11);
-			team4KeyStateAfter = GetAsyncKeyState(VK_F12);
-			if(team1KeyStateBefore && !team1KeyStateAfter){
-				pSelectedTeam = &team1;
-				printCode();
-				printf("已选择一队：");
-				printSelectedCode();
-			}
-			else if(team2KeyStateBefore && !team2KeyStateAfter){
-				pSelectedTeam = &team2;
-				printCode();
-				printf("已选择二队：");
-				printSelectedCode();
-			}
-			else if(team3KeyStateBefore && !team3KeyStateAfter){
-				pSelectedTeam = &team3;
-				printCode();
-				printf("已选择三队：");
-				printSelectedCode();
-			}
-			else if(team4KeyStateBefore && !team4KeyStateAfter){
-				pSelectedTeam = &team4;
-				printCode();
-				printf("已选择四队：");
-				printSelectedCode();
-			}
-
-			team1KeyStateBefore = team1KeyStateAfter;
-			team2KeyStateBefore = team2KeyStateAfter;
-			team3KeyStateBefore = team3KeyStateAfter;
-			team4KeyStateBefore = team4KeyStateAfter;
 		}
 		count++;
-
 		if(hForegroundWindow != hYuanShenWindow){
 			continue;
 		}
 
 		nowTime = timeGetTime();
 
-		key1StateAfter = GetAsyncKeyState(0x31);
-		key2StateAfter = GetAsyncKeyState(0x32);
-		key3StateAfter = GetAsyncKeyState(0x33);
-		key4StateAfter = GetAsyncKeyState(0x34);
-		mouseSideKey2StateAfter = GetAsyncKeyState(VK_XBUTTON1);
-
-		if(!key1StateBefore && key1StateAfter){
-			selectedCharacterAfter = (*pSelectedTeam)[0];
-			keyDown(selectedCharacterAfter);
-		}
-		else if(key1StateBefore && key1StateAfter){
-			keyHold(selectedCharacterAfter);
-		}
-		else if(key1StateBefore && !key1StateAfter){
-			keyUp(selectedCharacterAfter);
-		}
-		else if(!key2StateBefore && key2StateAfter){
-			selectedCharacterAfter = (*pSelectedTeam)[1];
-			keyDown(selectedCharacterAfter);
-		}
-		else if(key2StateBefore && key2StateAfter){
-			keyHold(selectedCharacterAfter);
-		}
-		else if(key2StateBefore && !key2StateAfter){
-			keyUp(selectedCharacterAfter);
-		}
-		else if(!key3StateBefore && key3StateAfter){
-			selectedCharacterAfter = (*pSelectedTeam)[2];
-			keyDown(selectedCharacterAfter);
-		}
-		else if(key3StateBefore && key3StateAfter){
-			keyHold(selectedCharacterAfter);
-		}
-		else if(key3StateBefore && !key3StateAfter){
-			keyUp(selectedCharacterAfter);
-		}
-		else if(!key4StateBefore && key4StateAfter){
-			selectedCharacterAfter = (*pSelectedTeam)[3];
-			keyDown(selectedCharacterAfter);
-		}
-		else if(key4StateBefore && key4StateAfter){
-			keyHold(selectedCharacterAfter);
-		}
-		else if(key4StateBefore && !key4StateAfter){
-			keyUp(selectedCharacterAfter);
-		}
-		else if(!mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-			keyDown(selectedCharacterAfter);
-		}
-		else if(mouseSideKey2StateBefore && mouseSideKey2StateAfter){
-			keyHold(selectedCharacterAfter);
-		}
-		else if(mouseSideKey2StateBefore && !mouseSideKey2StateAfter){
-			keyUp(selectedCharacterAfter);
-		}
-
-		key1StateBefore = key1StateAfter;
-		key2StateBefore = key2StateAfter;
-		key3StateBefore = key3StateAfter;
-		key4StateBefore = key4StateAfter;
-		mouseSideKey2StateBefore = mouseSideKey2StateAfter;
-		selectedCharacterBefore = selectedCharacterAfter;
+		//每次循环都检测一次1~4键、鼠标侧键
+		hotKey1->getHotKeyStateAndCallback();
+		hotKey2->getHotKeyStateAndCallback();
+		hotKey3->getHotKeyStateAndCallback();
+		hotKey4->getHotKeyStateAndCallback();
+		hotKey_mouseSideBtn1->getHotKeyStateAndCallback();
 	}
 }
 
-void keyDown(int selectedCharacterAfter){
+void keyDownCallback(unsigned char virtualCode){
+	switch(virtualCode){
+	case VirtualCode_1:
+		selectedCharacterAfter = (*pSelectedTeam)[0];
+		break;
+
+	case VirtualCode_2:
+		selectedCharacterAfter = (*pSelectedTeam)[1];
+		break;
+
+	case VirtualCode_3:
+		selectedCharacterAfter = (*pSelectedTeam)[2];
+		break;
+
+	case VirtualCode_4:
+		selectedCharacterAfter = (*pSelectedTeam)[3];
+		break;
+	}
+
 	switch(selectedCharacterAfter){
 	case SelectedCharacter_Keqing:
 		keqingDown(selectedCharacterAfter);
@@ -306,9 +285,11 @@ void keyDown(int selectedCharacterAfter){
 		keliDown(selectedCharacterAfter);
 		break;
 	}
+
+	selectedCharacterBefore = selectedCharacterAfter;
 }
 
-void keyHold(int selectedCharacterAfter){
+void keyHoldCallback(unsigned char virtualCode){
 	switch(selectedCharacterAfter){
 	case SelectedCharacter_Keqing:
 		keqingHold(selectedCharacterAfter);
@@ -352,7 +333,7 @@ void keyHold(int selectedCharacterAfter){
 	}
 }
 
-void keyUp(int selectedCharacterAfter){
+void keyUpCallback(unsigned char virtualCode){
 	switch(selectedCharacterAfter){
 	case SelectedCharacter_Keqing:
 		keqingUp(selectedCharacterAfter);
@@ -396,7 +377,56 @@ void keyUp(int selectedCharacterAfter){
 	}
 }
 
+void F8_KeyUpCallback(unsigned char virtualCode){
+	isNeedModifyTeam = !isNeedModifyTeam;
+	if(isNeedModifyTeam){
+		printCode();
+		printf("修改4个队员的代码，用空格键分隔：");
+		fflush(stdin);//将输入缓冲区清空
+		int a = 0;
+		int b = 0;
+		int c = 0;
+		int d = 0;
+		scanf_s("%d %d %d %d", &a, &b, &c, &d);
+		if(a && b && c && d){
+			(*pSelectedTeam)[0] = a;
+			(*pSelectedTeam)[1] = b;
+			(*pSelectedTeam)[2] = c;
+			(*pSelectedTeam)[3] = d;
+			printf("已选择%d,%d,%d,%d\n--------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
+		}
+		else{
+			printf("没修改\n--------------------------------------------------\n");
+		}
+		isNeedModifyTeam = 0;
+	}
+}
 
+void F9_to_F12_KeyUpCallback(unsigned char virtualCode){
+	printCode();
+	switch(virtualCode){
+	case VirtualCode_F9:
+		pSelectedTeam = &team1;
+		printf("已选择一队：");
+		break;
+
+	case VirtualCode_F10:
+		pSelectedTeam = &team2;
+		printf("已选择二队：");
+		break;
+
+	case VirtualCode_F11:
+		pSelectedTeam = &team3;
+		printf("已选择三队：");
+		break;
+
+	case VirtualCode_F12:
+		pSelectedTeam = &team4;
+		printf("已选择四队：");
+		break;
+	}
+	printSelectedCode();
+}
 
 
 /*
@@ -429,8 +459,8 @@ void keqingHold(int selectedCharacterAfter){
 
 	switch(keqingBuzhou){
 	case 1:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
+		keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 		keqing_E_Time = nowTime;
 		keqingBuzhou = 2;
 		break;
@@ -465,8 +495,8 @@ void keqingHold(int selectedCharacterAfter){
 			keqingBuzhou = 7;
 		}
 		else{
-			keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
-			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+			keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
+			keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 			keqing_E_Time = nowTime;
 			keqingBuzhou = 6;
 		}
@@ -519,7 +549,7 @@ void longE_Down(int selectedCharacterAfter){
 void longE_Hold(int selectedCharacterAfter){
 	switch(long_E_buzhou){
 	case 0:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
 		beginLong_E_Time = nowTime;
 		long_E_A_Time = nowTime;
 		long_E_buzhou = 1;
@@ -527,7 +557,7 @@ void longE_Hold(int selectedCharacterAfter){
 
 	case 1:
 		if(nowTime - beginLong_E_Time >= 1000){
-			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+			keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 			long_E_buzhou = 2;
 		}
 
@@ -535,12 +565,12 @@ void longE_Hold(int selectedCharacterAfter){
 			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 			long_E_A_Time = nowTime;
-			
+
 		}
 		break;
 
 	case 2:
-		if(nowTime - beginLong_E_Time >= 1100)	{
+		if(nowTime - beginLong_E_Time >= 1100){
 			long_E_buzhou = 0;
 		}
 		break;
@@ -551,7 +581,7 @@ void longE_Up(int selectedCharacterAfter){
 	while(nowTime - beginLong_E_Time < 1000){
 		nowTime = timeGetTime();
 	}
-	keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+	keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 }
 
 
@@ -566,7 +596,7 @@ void dilukeDown(int selectedCharacterAfter){
 		diluke_E_or_A_Time = changeDilukeTime;
 		diluke_E_Time = nowTime - 500;
 	}
-	
+
 }
 
 void dilukeHold(int selectedCharacterAfter){
@@ -578,8 +608,8 @@ void dilukeHold(int selectedCharacterAfter){
 	switch(dilukeBuzhou){
 	case 1:
 		if(nowTime - diluke_E_Time >= 2000){
-			keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
-			keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+			keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
+			keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 			diluke_E_Time = nowTime;
 		}
 		else{
@@ -625,8 +655,8 @@ void E_A_Hold(int selectedCharacterAfter){
 
 	switch(E_A_Buzhou){
 	case 0:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);//按下E键
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);//弹起E键
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
+		keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 		E_A_Buzhou = 1;
 		E_Time = nowTime;
 		break;
@@ -679,8 +709,8 @@ void Q_E_Hold(int selectedCharacterAfter){
 
 	switch(Q_E_Buzhou){
 	case 1:
-		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, 0, 0);
-		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keybd_event(VirtualCode_Q, ScanCode_Q, 0, 0);
+		keybd_event(VirtualCode_Q, ScanCode_Q, KEYEVENTF_KEYUP, 0);
 		QE_buzhou1_Time = nowTime;
 		Q_E_Buzhou = 2;
 		break;
@@ -692,8 +722,8 @@ void Q_E_Hold(int selectedCharacterAfter){
 		break;
 
 	case 3:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);
 		QE_buzhou3_Time = nowTime;
 		Q_E_Buzhou = 4;
 		break;
@@ -712,7 +742,7 @@ void Q_E_Hold(int selectedCharacterAfter){
 		break;
 
 	case 6:
-		if(nowTime - QE_buzhou5_Time >= 50){
+		if(nowTime - QE_buzhou5_Time >= 100){
 			Q_E_Buzhou = 1;
 		}
 		break;
@@ -745,8 +775,8 @@ void E_Q_Hold(int selectedCharacterAfter){
 
 	switch(E_Q_Buzhou){
 	case 1:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);
 		EQ_buzhou1_Time = nowTime;
 		E_Q_Buzhou = 2;
 		break;
@@ -758,8 +788,8 @@ void E_Q_Hold(int selectedCharacterAfter){
 		break;
 
 	case 3:
-		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, 0, 0);
-		keybd_event(Q_KeyVirtualCode, Q_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keybd_event(VirtualCode_Q, ScanCode_Q, 0, 0);
+		keybd_event(VirtualCode_Q, ScanCode_Q, KEYEVENTF_KEYUP, 0);
 		EQ_buzhou3_Time = nowTime;
 		E_Q_Buzhou = 4;
 		break;
@@ -815,8 +845,8 @@ void keliHold(int selectedCharacterAfter){
 
 	switch(keliBuzhou){
 	case 1:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);
 		keli_E_Time = nowTime;
 		keliBuzhou = 2;
 		break;
@@ -828,8 +858,8 @@ void keliHold(int selectedCharacterAfter){
 		break;
 
 	case 3:
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, 0, 0);
-		keybd_event(E_KeyVirtualCode, E_KeyScanCode, KEYEVENTF_KEYUP, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);
+		keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 		keliFirst_A_Time = nowTime;

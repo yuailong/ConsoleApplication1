@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{0b850831-f253-45e3-9bdd-3f2bcb0eed67}</ProjectGuid>
-    <RootNamespace>鼠标</RootNamespace>
+    <ProjectGuid>{5e5e41ad-427b-4245-b90b-0b64b72aa3d5}</ProjectGuid>
+    <RootNamespace>YuanShenZhuShou</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="YSHotKey.cpp" />
-    <ClCompile Include="鼠标.cpp" />
+    <ClCompile Include="YuanShenZhuShou.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="YSHotKey.h" />
