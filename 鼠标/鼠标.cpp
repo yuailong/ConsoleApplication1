@@ -536,17 +536,16 @@ void longE_Down(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeLong_E_Time = timeGetTime();
 	}
-
-	//等待切换硬直时间
-	while(nowTime - changeLong_E_Time < changeDelay){
-		nowTime = timeGetTime();
-	}
-
 	long_E_buzhou = 0;
 }
 
 
 void longE_Hold(int selectedCharacterAfter){
+	//等待切换硬直时间
+	if(nowTime - changeLong_E_Time < changeDelay){
+		return;
+	}
+
 	switch(long_E_buzhou){
 	case 0:
 		keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
