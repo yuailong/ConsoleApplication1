@@ -53,6 +53,7 @@ YSHotKey* hotKeyF9;
 YSHotKey* hotKeyF10;
 YSHotKey* hotKeyF11;
 YSHotKey* hotKeyF12;
+YSHotKey* hotKey_mouseLeftBtn;
 YSHotKey* hotKey_mouseSideBtn1;
 YSHotKey* hotKey_mouseSideBtn2;
 
@@ -98,39 +99,7 @@ void keliHold(int selectedCharacterAfter);//按住
 void keliUp(int selectedCharacterAfter);//弹起
 
 //登龙剑
-void dengLongJian(unsigned char virtualCode){
-	mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);//按下鼠标右键
-	DWORD time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);//弹起鼠标右键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	keybd_event(VirtualCode_Space, 0, 0, 0);//按下空格键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	keybd_event(VirtualCode_Space, 0, KEYEVENTF_KEYUP, 0);//弹起空格键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 128);
-	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
-	time1 = timeGetTime();
-	while(timeGetTime() - time1 < 64);
-}
-
+void dengLongJian(unsigned char virtualCode);
 void printCode();
 void printSelectedCode();
 
@@ -202,6 +171,13 @@ int main(){
 							 NULL,
 							 F9_to_F12_KeyUpCallback);
 
+	hotKey_mouseLeftBtn = new YSHotKey("鼠标左键",
+									   VirtualCode_MouseLeftButton,
+									   0,
+									   dengLongJian,
+									   NULL,
+									   NULL);
+
 	hotKey_mouseSideBtn1 = new YSHotKey("鼠标1号侧键",
 										VirtualCode_MouseSideButton1,
 										0,
@@ -250,6 +226,7 @@ int main(){
 		hotKey2->getHotKeyStateAndCallback();
 		hotKey3->getHotKeyStateAndCallback();
 		hotKey4->getHotKeyStateAndCallback();
+		hotKey_mouseLeftBtn->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn1->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn2->getHotKeyStateAndCallback();
 	}
@@ -928,6 +905,40 @@ void keliUp(int selectedCharacterAfter){
 	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 }
 
+
+//登龙剑
+void dengLongJian(unsigned char virtualCode){
+	mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);//按下鼠标右键
+	DWORD time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);//弹起鼠标右键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	keybd_event(VirtualCode_Space, 0, 0, 0);//按下空格键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	keybd_event(VirtualCode_Space, 0, KEYEVENTF_KEYUP, 0);//弹起空格键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 128);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+}
 
 void printCode(){
 	printf("迪卢克 %d\n刻晴   %d\nEA     %d %d %d %d\n长E    %d %d %d %d\nQE     %d %d %d %d\nEQ     %d %d %d %d\n可莉   %d\n------------------------------------------------\n",
