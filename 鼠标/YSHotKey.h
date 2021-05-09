@@ -13,7 +13,9 @@
 #define VirtualCode_F10 VK_F10 //F10¼üĞéÄâÂë
 #define VirtualCode_F11 VK_F11 //F11¼üĞéÄâÂë
 #define VirtualCode_F12 VK_F12 //F12¼üĞéÄâÂë
+#define VirtualCode_Space VK_SPACE //¿Õ¸ñ¼üĞéÄâÂë
 #define VirtualCode_MouseSideButton1 VK_XBUTTON1 //Êó±ê1ºÅ²à¼üĞéÄâÂë
+#define VirtualCode_MouseSideButton2 VK_XBUTTON2 //Êó±ê2ºÅ²à¼üĞéÄâÂë
 #define ScanCode_E 18 //E¼üÉ¨ÃèÂë
 #define ScanCode_Q 56 //Q¼üÉ¨ÃèÂë
 

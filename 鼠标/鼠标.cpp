@@ -39,19 +39,6 @@ int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedChara
 int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
 int(*pSelectedTeam)[4] = &team1;
 
-
-SHORT team1KeyStateBefore = 0;
-SHORT team2KeyStateBefore = 0;
-SHORT team3KeyStateBefore = 0;
-SHORT team4KeyStateBefore = 0;
-SHORT mouseSideKey2StateBefore = 0;//鼠标侧面键2
-
-SHORT team1KeyStateAfter = 0;
-SHORT team2KeyStateAfter = 0;
-SHORT team3KeyStateAfter = 0;
-SHORT team4KeyStateAfter = 0;
-SHORT mouseSideKey2StateAfter = 0;
-
 DWORD nowTime = 0;
 HWND hYuanShenWindow;//原神窗口句柄
 HWND hForegroundWindow;//前景窗口
@@ -67,6 +54,7 @@ YSHotKey* hotKeyF10;
 YSHotKey* hotKeyF11;
 YSHotKey* hotKeyF12;
 YSHotKey* hotKey_mouseSideBtn1;
+YSHotKey* hotKey_mouseSideBtn2;
 
 void keyDownCallback(unsigned char virtualCode);
 void keyHoldCallback(unsigned char virtualCode);
@@ -108,6 +96,40 @@ void E_Q_Up(int selectedCharacterAfter);//弹起
 void keliDown(int selectedCharacterAfter);//按下
 void keliHold(int selectedCharacterAfter);//按住
 void keliUp(int selectedCharacterAfter);//弹起
+
+//登龙剑
+void dengLongJian(unsigned char virtualCode){
+	mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);//按下鼠标右键
+	DWORD time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);//弹起鼠标右键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	keybd_event(VirtualCode_Space, 0, 0, 0);//按下空格键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	keybd_event(VirtualCode_Space, 0, KEYEVENTF_KEYUP, 0);//弹起空格键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 128);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
+	time1 = timeGetTime();
+	while(timeGetTime() - time1 < 64);
+}
 
 void printCode();
 void printSelectedCode();
@@ -187,6 +209,13 @@ int main(){
 										keyHoldCallback,
 										keyUpCallback);
 
+	hotKey_mouseSideBtn2 = new YSHotKey("鼠标2号侧键",
+										VirtualCode_MouseSideButton2,
+										0,
+										dengLongJian,
+										NULL,
+										NULL);
+
 	while(true){
 		/*
 		//打印扫描码
@@ -222,6 +251,7 @@ int main(){
 		hotKey3->getHotKeyStateAndCallback();
 		hotKey4->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn1->getHotKeyStateAndCallback();
+		hotKey_mouseSideBtn2->getHotKeyStateAndCallback();
 	}
 }
 
@@ -593,7 +623,7 @@ void dilukeDown(int selectedCharacterAfter){
 	if(selectedCharacterBefore != selectedCharacterAfter){
 		changeDilukeTime = timeGetTime();
 		diluke_E_or_A_Time = changeDilukeTime;
-		diluke_E_Time = nowTime - 500;
+		diluke_E_Time = nowTime;
 	}
 
 }
@@ -606,7 +636,7 @@ void dilukeHold(int selectedCharacterAfter){
 
 	switch(dilukeBuzhou){
 	case 1:
-		if(nowTime - diluke_E_Time >= 2000){
+		if(nowTime - diluke_E_Time >= 1300){
 			keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
 			keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 			diluke_E_Time = nowTime;
