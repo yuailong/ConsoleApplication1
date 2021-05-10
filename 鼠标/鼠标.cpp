@@ -174,7 +174,7 @@ int main(){
 	hotKey_mouseLeftBtn = new YSHotKey("鼠标左键",
 									   VirtualCode_MouseLeftButton,
 									   0,
-									   dengLongJian,
+									   NULL,
 									   NULL,
 									   NULL);
 
@@ -215,7 +215,7 @@ int main(){
 			hForegroundWindow = GetForegroundWindow();
 		}
 		count++;
-		if(hForegroundWindow != hYuanShenWindow){
+		if(!hForegroundWindow || !hYuanShenWindow || hForegroundWindow != hYuanShenWindow){
 			continue;
 		}
 
