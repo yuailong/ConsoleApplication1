@@ -21,12 +21,60 @@
     <ClCompile Include="YSHotKey.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="YSDiluke.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YSKeqing.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YSLongE.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YS_E_A.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YS_Q_E.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YS_E_Q.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YSKeli.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="YSDengLongJian.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="YSHotKey.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YSDiluke.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YSKeqing.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YSLongE.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YS_E_A.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YS_Q_E.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YS_E_Q.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YSKeli.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YSDengLongJian.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

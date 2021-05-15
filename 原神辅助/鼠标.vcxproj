@@ -140,12 +140,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="YSDengLongJian.cpp" />
+    <ClCompile Include="YSDiluke.cpp" />
     <ClCompile Include="YSHotKey.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="YSKeli.cpp" />
+    <ClCompile Include="YSKeqing.cpp" />
+    <ClCompile Include="YSLongE.cpp" />
+    <ClCompile Include="YS_E_A.cpp" />
+    <ClCompile Include="YS_E_Q.cpp" />
+    <ClCompile Include="YS_Q_E.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
+    <ClInclude Include="YSDengLongJian.h" />
+    <ClInclude Include="YSDiluke.h" />
     <ClInclude Include="YSHotKey.h" />
+    <ClInclude Include="YSKeli.h" />
+    <ClInclude Include="YSKeqing.h" />
+    <ClInclude Include="YSLongE.h" />
+    <ClInclude Include="YS_E_A.h" />
+    <ClInclude Include="YS_E_Q.h" />
+    <ClInclude Include="YS_Q_E.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
