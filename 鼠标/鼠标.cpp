@@ -31,8 +31,8 @@
 
 DWORD changeDelay = 250; //切换硬直时间
 bool isNeedModifyTeam = 0;//是否需要修改队员
-int selectedCharacterBefore = SelectedCharacter1_E_A;
-int selectedCharacterAfter = SelectedCharacter1_E_A;
+int selectedCharacterCodeBefore = SelectedCharacter1_E_A;
+int selectedCharacterCodeAfter = SelectedCharacter1_E_A;
 int team1[4] = { SelectedCharacter1_Q_E, SelectedCharacter2_LongE, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
 int team2[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter_Keqing, SelectedCharacter4_E_A };
 int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
@@ -64,39 +64,39 @@ void F8_KeyUpCallback(unsigned char virtualCode);
 void F9_to_F12_KeyUpCallback(unsigned char virtualCode);
 
 //刻晴
-void keqingDown(int selectedCharacterAfter);//按下
-void keqingHold(int selectedCharacterAfter);//按住
-void keqingUp(int selectedCharacterAfter);//弹起
+void keqingDown(int selectedCharacterCodeAfter);//按下
+void keqingHold(int selectedCharacterCodeAfter);//按住
+void keqingUp(int selectedCharacterCodeAfter);//弹起
 
 //长按E的角色
-void longE_Down(int selectedCharacterAfter);//按下
-void longE_Hold(int selectedCharacterAfter);//按住
-void longE_Up(int selectedCharacterAfter);//弹起
+void longE_Down(int selectedCharacterCodeAfter);//按下
+void longE_Hold(int selectedCharacterCodeAfter);//按住
+void longE_Up(int selectedCharacterCodeAfter);//弹起
 
 //迪卢克
-void dilukeDown(int selectedCharacterAfter);//按下
-void dilukeHold(int selectedCharacterAfter);//按住
-void dilukeUp(int selectedCharacterAfter);//弹起
+void dilukeDown(int selectedCharacterCodeAfter);//按下
+void dilukeHold(int selectedCharacterCodeAfter);//按住
+void dilukeUp(int selectedCharacterCodeAfter);//弹起
 
 //短按E的角色
-void E_A_Down(int selectedCharacterAfter);//按下
-void E_A_Hold(int selectedCharacterAfter);//按住
-void E_A_Up(int selectedCharacterAfter);//弹起
+void E_A_Down(int selectedCharacterCodeAfter);//按下
+void E_A_Hold(int selectedCharacterCodeAfter);//按住
+void E_A_Up(int selectedCharacterCodeAfter);//弹起
 
 //先Q后E的角色
-void Q_E_Down(int selectedCharacterAfter);//按下
-void Q_E_Hold(int selectedCharacterAfter);//按住
-void Q_E_Up(int selectedCharacterAfter);//弹起
+void Q_E_Down(int selectedCharacterCodeAfter);//按下
+void Q_E_Hold(int selectedCharacterCodeAfter);//按住
+void Q_E_Up(int selectedCharacterCodeAfter);//弹起
 
 //先E后Q的角色
-void E_Q_Down(int selectedCharacterAfter);//按下
-void E_Q_Hold(int selectedCharacterAfter);//按住
-void E_Q_Up(int selectedCharacterAfter);//弹起
+void E_Q_Down(int selectedCharacterCodeAfter);//按下
+void E_Q_Hold(int selectedCharacterCodeAfter);//按住
+void E_Q_Up(int selectedCharacterCodeAfter);//弹起
 
 //可莉
-void keliDown(int selectedCharacterAfter);//按下
-void keliHold(int selectedCharacterAfter);//按住
-void keliUp(int selectedCharacterAfter);//弹起
+void keliDown(int selectedCharacterCodeAfter);//按下
+void keliHold(int selectedCharacterCodeAfter);//按住
+void keliUp(int selectedCharacterCodeAfter);//弹起
 
 //登龙剑
 void dengLongJian(unsigned char virtualCode);
@@ -235,151 +235,151 @@ int main(){
 void keyDownCallback(unsigned char virtualCode){
 	switch(virtualCode){
 	case VirtualCode_1:
-		selectedCharacterAfter = (*pSelectedTeam)[0];
+		selectedCharacterCodeAfter = (*pSelectedTeam)[0];
 		break;
 
 	case VirtualCode_2:
-		selectedCharacterAfter = (*pSelectedTeam)[1];
+		selectedCharacterCodeAfter = (*pSelectedTeam)[1];
 		break;
 
 	case VirtualCode_3:
-		selectedCharacterAfter = (*pSelectedTeam)[2];
+		selectedCharacterCodeAfter = (*pSelectedTeam)[2];
 		break;
 
 	case VirtualCode_4:
-		selectedCharacterAfter = (*pSelectedTeam)[3];
+		selectedCharacterCodeAfter = (*pSelectedTeam)[3];
 		break;
 	}
 
-	switch(selectedCharacterAfter){
+	switch(selectedCharacterCodeAfter){
 	case SelectedCharacter_Keqing:
-		keqingDown(selectedCharacterAfter);
+		keqingDown(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter_Diluke:
-		dilukeDown(selectedCharacterAfter);
+		dilukeDown(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_E_A:
 	case SelectedCharacter2_E_A:
 	case SelectedCharacter3_E_A:
 	case SelectedCharacter4_E_A:
-		E_A_Down(selectedCharacterAfter);
+		E_A_Down(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_LongE:
 	case SelectedCharacter2_LongE:
 	case SelectedCharacter3_LongE:
 	case SelectedCharacter4_LongE:
-		longE_Down(selectedCharacterAfter);
+		longE_Down(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_Q_E:
 	case SelectedCharacter2_Q_E:
 	case SelectedCharacter3_Q_E:
 	case SelectedCharacter4_Q_E:
-		Q_E_Down(selectedCharacterAfter);
+		Q_E_Down(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_E_Q:
 	case SelectedCharacter2_E_Q:
 	case SelectedCharacter3_E_Q:
 	case SelectedCharacter4_E_Q:
-		E_Q_Down(selectedCharacterAfter);
+		E_Q_Down(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter_Keli:
-		keliDown(selectedCharacterAfter);
+		keliDown(selectedCharacterCodeAfter);
 		break;
 	}
 
-	selectedCharacterBefore = selectedCharacterAfter;
+	selectedCharacterCodeBefore = selectedCharacterCodeAfter;
 }
 
 void keyHoldCallback(unsigned char virtualCode){
-	switch(selectedCharacterAfter){
+	switch(selectedCharacterCodeAfter){
 	case SelectedCharacter_Keqing:
-		keqingHold(selectedCharacterAfter);
+		keqingHold(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter_Diluke:
-		dilukeHold(selectedCharacterAfter);
+		dilukeHold(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_E_A:
 	case SelectedCharacter2_E_A:
 	case SelectedCharacter3_E_A:
 	case SelectedCharacter4_E_A:
-		E_A_Hold(selectedCharacterAfter);
+		E_A_Hold(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_LongE:
 	case SelectedCharacter2_LongE:
 	case SelectedCharacter3_LongE:
 	case SelectedCharacter4_LongE:
-		longE_Hold(selectedCharacterAfter);
+		longE_Hold(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_Q_E:
 	case SelectedCharacter2_Q_E:
 	case SelectedCharacter3_Q_E:
 	case SelectedCharacter4_Q_E:
-		Q_E_Hold(selectedCharacterAfter);
+		Q_E_Hold(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_E_Q:
 	case SelectedCharacter2_E_Q:
 	case SelectedCharacter3_E_Q:
 	case SelectedCharacter4_E_Q:
-		E_Q_Hold(selectedCharacterAfter);
+		E_Q_Hold(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter_Keli:
-		keliHold(selectedCharacterAfter);
+		keliHold(selectedCharacterCodeAfter);
 		break;
 	}
 }
 
 void keyUpCallback(unsigned char virtualCode){
-	switch(selectedCharacterAfter){
+	switch(selectedCharacterCodeAfter){
 	case SelectedCharacter_Keqing:
-		keqingUp(selectedCharacterAfter);
+		keqingUp(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter_Diluke:
-		dilukeUp(selectedCharacterAfter);
+		dilukeUp(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_E_A:
 	case SelectedCharacter2_E_A:
 	case SelectedCharacter3_E_A:
 	case SelectedCharacter4_E_A:
-		E_A_Up(selectedCharacterAfter);
+		E_A_Up(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_LongE:
 	case SelectedCharacter2_LongE:
 	case SelectedCharacter3_LongE:
 	case SelectedCharacter4_LongE:
-		longE_Up(selectedCharacterAfter);
+		longE_Up(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_Q_E:
 	case SelectedCharacter2_Q_E:
 	case SelectedCharacter3_Q_E:
 	case SelectedCharacter4_Q_E:
-		Q_E_Up(selectedCharacterAfter);
+		Q_E_Up(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter1_E_Q:
 	case SelectedCharacter2_E_Q:
 	case SelectedCharacter3_E_Q:
 	case SelectedCharacter4_E_Q:
-		E_Q_Up(selectedCharacterAfter);
+		E_Q_Up(selectedCharacterCodeAfter);
 		break;
 
 	case SelectedCharacter_Keli:
-		keliUp(selectedCharacterAfter);
+		keliUp(selectedCharacterCodeAfter);
 		break;
 	}
 }
@@ -451,14 +451,14 @@ DWORD keqing_E_Time = 0;
 DWORD keqing_MouseDown_Time = 0;
 DWORD keqing_MouseUp_Time = 0;
 
-void keqingDown(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
+void keqingDown(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
 		changeKeqingTime = timeGetTime();
 	}
 	keqingBuzhou = 1;
 }
 
-void keqingHold(int selectedCharacterAfter){
+void keqingHold(int selectedCharacterCodeAfter){
 	//等待切换硬直时间
 	if(nowTime - changeKeqingTime < changeDelay){
 		return;
@@ -528,7 +528,7 @@ void keqingHold(int selectedCharacterAfter){
 	}
 }
 
-void keqingUp(int selectedCharacterAfter){
+void keqingUp(int selectedCharacterCodeAfter){
 	if(keqingBuzhou == 4 || keqingBuzhou == 5 || keqingBuzhou == 6){
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//弹起鼠标左键
 	}
@@ -539,15 +539,15 @@ DWORD changeLong_E_Time = 0;//切换到长按E的角色的时间
 DWORD beginLong_E_Time = 0;//按下E键的时间
 DWORD long_E_buzhou = 0;
 DWORD long_E_A_Time = 0;
-void longE_Down(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
+void longE_Down(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
 		changeLong_E_Time = timeGetTime();
 	}
 	long_E_buzhou = 0;
 }
 
 
-void longE_Hold(int selectedCharacterAfter){
+void longE_Hold(int selectedCharacterCodeAfter){
 	//等待切换硬直时间
 	if(nowTime - changeLong_E_Time < changeDelay){
 		return;
@@ -583,7 +583,7 @@ void longE_Hold(int selectedCharacterAfter){
 	}
 }
 
-void longE_Up(int selectedCharacterAfter){
+void longE_Up(int selectedCharacterCodeAfter){
 	while(nowTime - beginLong_E_Time < 1000){
 		nowTime = timeGetTime();
 	}
@@ -596,8 +596,8 @@ DWORD changeDilukeTime = 0;//切换到迪卢克的时间
 DWORD diluke_E_or_A_Time2 = 0;
 DWORD diluke_E_Time = 0;//迪卢克上一次E的时间
 
-void dilukeDown(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
+void dilukeDown(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
 		changeDilukeTime = nowTime;
 		diluke_E_or_A_Time2 = changeDilukeTime;
 		diluke_E_Time = nowTime + changeDelay - 400;
@@ -605,7 +605,7 @@ void dilukeDown(int selectedCharacterAfter){
 
 }
 
-void dilukeHold(int selectedCharacterAfter){
+void dilukeHold(int selectedCharacterCodeAfter){
 	//等待切换硬直时间
 	if(nowTime - changeDilukeTime < changeDelay){
 		return;
@@ -613,7 +613,7 @@ void dilukeHold(int selectedCharacterAfter){
 
 	switch(dilukeBuzhou){
 	case 1:
-		if(nowTime - diluke_E_Time >= 1100){
+		if(nowTime - diluke_E_Time >= 1200){
 			keybd_event(VirtualCode_E, ScanCode_E, 0, 0);//按下E键
 			keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 			diluke_E_Time = nowTime;
@@ -634,7 +634,7 @@ void dilukeHold(int selectedCharacterAfter){
 	}
 }
 
-void dilukeUp(int selectedCharacterAfter){
+void dilukeUp(int selectedCharacterCodeAfter){
 
 }
 
@@ -643,15 +643,15 @@ int E_A_Buzhou = 0;
 DWORD change_E_A_Time = 0;//切换到这个角色的时间
 DWORD E_Time = 0;//E的时间
 DWORD A_Time = 0;//A的时间
-void E_A_Down(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
-		selectedCharacterBefore = selectedCharacterAfter;
+void E_A_Down(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
+		selectedCharacterCodeBefore = selectedCharacterCodeAfter;
 		change_E_A_Time = timeGetTime();
 	}
 	E_A_Buzhou = 0;
 }
 
-void E_A_Hold(int selectedCharacterAfter){
+void E_A_Hold(int selectedCharacterCodeAfter){
 
 
 	//等待切换硬直时间
@@ -688,7 +688,7 @@ void E_A_Hold(int selectedCharacterAfter){
 	}
 }
 
-void E_A_Up(int selectedCharacterAfter){
+void E_A_Up(int selectedCharacterCodeAfter){
 
 }
 
@@ -699,15 +699,15 @@ DWORD change_Q_E_Time = 0;//切换到这个角色的时间
 DWORD QE_buzhou1_Time = 0;
 DWORD QE_buzhou3_Time = 0;
 DWORD QE_buzhou5_Time = 0;
-void Q_E_Down(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
-		selectedCharacterBefore = selectedCharacterAfter;
+void Q_E_Down(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
+		selectedCharacterCodeBefore = selectedCharacterCodeAfter;
 		change_Q_E_Time = timeGetTime();
 	}
 	Q_E_Buzhou = 1;
 }
 
-void Q_E_Hold(int selectedCharacterAfter){
+void Q_E_Hold(int selectedCharacterCodeAfter){
 	//等待切换硬直时间
 	if(nowTime - change_Q_E_Time < changeDelay){
 		return;
@@ -755,7 +755,7 @@ void Q_E_Hold(int selectedCharacterAfter){
 	}
 }
 
-void Q_E_Up(int selectedCharacterAfter){
+void Q_E_Up(int selectedCharacterCodeAfter){
 
 }
 
@@ -765,15 +765,15 @@ DWORD change_E_Q_Time = 0;//切换到这个角色的时间
 DWORD EQ_buzhou1_Time = 0;
 DWORD EQ_buzhou3_Time = 0;
 DWORD EQ_buzhou5_Time = 0;
-void E_Q_Down(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
-		selectedCharacterBefore = selectedCharacterAfter;
+void E_Q_Down(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
+		selectedCharacterCodeBefore = selectedCharacterCodeAfter;
 		change_E_Q_Time = timeGetTime();
 	}
 	E_Q_Buzhou = 1;
 }
 
-void E_Q_Hold(int selectedCharacterAfter){
+void E_Q_Hold(int selectedCharacterCodeAfter){
 	//等待切换硬直时间
 	if(nowTime - change_E_Q_Time < changeDelay){
 		return;
@@ -821,7 +821,7 @@ void E_Q_Hold(int selectedCharacterAfter){
 	}
 }
 
-void E_Q_Up(int selectedCharacterAfter){
+void E_Q_Up(int selectedCharacterCodeAfter){
 
 }
 
@@ -835,15 +835,15 @@ DWORD keliSecond_A_Time = 0;
 DWORD keliBuzhou2_Time = 0;
 DWORD keliBuzhou5_Time = 0;
 DWORD keliBuzhou6_Time = 0;
-void keliDown(int selectedCharacterAfter){
-	if(selectedCharacterBefore != selectedCharacterAfter){
-		selectedCharacterBefore = selectedCharacterAfter;
+void keliDown(int selectedCharacterCodeAfter){
+	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
+		selectedCharacterCodeBefore = selectedCharacterCodeAfter;
 		changeKeliTime = timeGetTime();
 	}
 	keliBuzhou = 1;
 }
 
-void keliHold(int selectedCharacterAfter){
+void keliHold(int selectedCharacterCodeAfter){
 	//等待切换硬直时间
 	if(nowTime - changeKeliTime < changeDelay){
 		return;
@@ -901,7 +901,7 @@ void keliHold(int selectedCharacterAfter){
 	}
 }
 
-void keliUp(int selectedCharacterAfter){
+void keliUp(int selectedCharacterCodeAfter){
 	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 }
 
