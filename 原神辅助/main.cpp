@@ -130,13 +130,13 @@ int main(){
 										keyUpCallback);
 
 	hotKey_mouseSideBtn2 = new YSHotKey("鼠标2号侧键",
-										VirtualCode_R,
+										VirtualCode_MouseSideButton2,
 										0,
 										keyDownCallback2,
 										keyHoldCallback2,
 										keyUpCallback2);
 	hotKeyR = new YSHotKey("R键",
-						   VirtualCode_MouseSideButton2,
+						   VirtualCode_R,
 						   0,
 						   keyDownCallback2,
 						   keyHoldCallback2,
