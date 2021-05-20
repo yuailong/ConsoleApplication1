@@ -14,7 +14,7 @@ DWORD changeDelay = 250; //切换硬直时间
 bool isNeedModifyTeam = 0;//是否需要修改队员
 int selectedCharacterCodeBefore = SelectedCharacter1_E_A;
 int selectedCharacterCodeAfter = SelectedCharacter1_E_A;
-int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter_Keqing, SelectedCharacter3_E_A, SelectedCharacter_Youla };
+int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter_Keqing, SelectedCharacter3_Q_E, SelectedCharacter_Youla };
 int team2[4] = { SelectedCharacter1_LongE, SelectedCharacter2_Q_E, SelectedCharacter2_Q_E, SelectedCharacter_Diluke };
 int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
 int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
@@ -180,6 +180,7 @@ int main(){
 		hotKey_mouseLeftBtn->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn1->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn2->getHotKeyStateAndCallback();
+		hotKeyR->getHotKeyStateAndCallback();
 	}
 }
 
