@@ -140,6 +140,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HotKeyStrategy1.cpp" />
+    <ClCompile Include="HotKeyStrategy2.cpp" />
     <ClCompile Include="YSDengLongJian.cpp" />
     <ClCompile Include="YSDiluke.cpp" />
     <ClCompile Include="YSHotKey.cpp" />
@@ -152,6 +154,8 @@
     <ClCompile Include="YS_Q_E.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HotKeyStrategy1.h" />
+    <ClInclude Include="HotKeyStrategy2.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="YSDengLongJian.h" />
     <ClInclude Include="YSDiluke.h" />

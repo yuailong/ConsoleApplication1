@@ -45,6 +45,12 @@
     <ClCompile Include="YSDengLongJian.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="HotKeyStrategy1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HotKeyStrategy2.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="YSHotKey.h">
@@ -75,6 +81,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="YSDengLongJian.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HotKeyStrategy1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HotKeyStrategy2.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

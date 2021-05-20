@@ -20,6 +20,7 @@
 #define SelectedCharacter3_E_Q 5003			//在3号位的，先Q后E的角色
 #define SelectedCharacter4_E_Q 5004			//在4号位的，先Q后E的角色
 #define SelectedCharacter_Keli 6001			//可莉
+#define SelectedCharacter_Youla 7001        //优菈
 
 extern DWORD changeDelay; //切换硬直时间
 extern int selectedCharacterCodeBefore;

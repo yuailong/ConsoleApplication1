@@ -17,6 +17,7 @@
 #define VirtualCode_MouseLeftButton 0x01 //Êó±ê1ºÅ²à¼üĞéÄâÂë
 #define VirtualCode_MouseSideButton1 0x05 //Êó±ê1ºÅ²à¼üĞéÄâÂë
 #define VirtualCode_MouseSideButton2 0x06 //Êó±ê2ºÅ²à¼üĞéÄâÂë
+#define VirtualCode_R 0x52 //Êó±ê2ºÅ²à¼üĞéÄâÂë
 #define ScanCode_E 18 //E¼üÉ¨ÃèÂë
 #define ScanCode_Q 56 //Q¼üÉ¨ÃèÂë
 

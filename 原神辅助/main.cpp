@@ -4,14 +4,9 @@
 #include <iostream>
 #include <timeapi.h>
 #include "YSHotKey.h"
-#include "YSDiluke.h"
-#include "YSKeqing.h"
+#include "HotKeyStrategy1.h"
+#include "HotKeyStrategy2.h"
 #include "YSDengLongJian.h"
-#include "YSKeli.h"
-#include "YSLongE.h"
-#include "YS_E_A.h"
-#include "YS_Q_E.h"
-#include "YS_E_Q.h"
 #pragma comment(lib, "Winmm.lib")
 
 
@@ -19,8 +14,8 @@ DWORD changeDelay = 250; //切换硬直时间
 bool isNeedModifyTeam = 0;//是否需要修改队员
 int selectedCharacterCodeBefore = SelectedCharacter1_E_A;
 int selectedCharacterCodeAfter = SelectedCharacter1_E_A;
-int team1[4] = { SelectedCharacter1_Q_E, SelectedCharacter2_LongE, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
-int team2[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter_Keqing, SelectedCharacter4_E_A };
+int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter_Keqing, SelectedCharacter3_E_A, SelectedCharacter_Youla };
+int team2[4] = { SelectedCharacter1_LongE, SelectedCharacter2_Q_E, SelectedCharacter2_Q_E, SelectedCharacter_Diluke };
 int team3[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Diluke };
 int team4[4] = { SelectedCharacter1_LongE, SelectedCharacter2_E_A, SelectedCharacter3_Q_E, SelectedCharacter_Keli };
 int(*pSelectedTeam)[4] = &team1;
@@ -42,10 +37,9 @@ YSHotKey* hotKeyF12;
 YSHotKey* hotKey_mouseLeftBtn;
 YSHotKey* hotKey_mouseSideBtn1;
 YSHotKey* hotKey_mouseSideBtn2;
+YSHotKey* hotKeyR;
 
-void keyDownCallback(unsigned char virtualCode);
-void keyHoldCallback(unsigned char virtualCode);
-void keyUpCallback(unsigned char virtualCode);
+
 void F8_KeyUpCallback(unsigned char virtualCode);
 void F9_to_F12_KeyUpCallback(unsigned char virtualCode);
 
@@ -136,11 +130,17 @@ int main(){
 										keyUpCallback);
 
 	hotKey_mouseSideBtn2 = new YSHotKey("鼠标2号侧键",
-										VirtualCode_MouseSideButton2,
+										VirtualCode_R,
 										0,
-										dengLongJian,
-										NULL,
-										NULL);
+										keyDownCallback2,
+										keyHoldCallback2,
+										keyUpCallback2);
+	hotKeyR = new YSHotKey("R键",
+						   VirtualCode_MouseSideButton2,
+						   0,
+						   keyDownCallback2,
+						   keyHoldCallback2,
+						   keyUpCallback2);
 
 	while(true){
 		/*
@@ -180,158 +180,6 @@ int main(){
 		hotKey_mouseLeftBtn->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn1->getHotKeyStateAndCallback();
 		hotKey_mouseSideBtn2->getHotKeyStateAndCallback();
-	}
-}
-
-void keyDownCallback(unsigned char virtualCode){
-	switch(virtualCode){
-	case VirtualCode_1:
-		selectedCharacterCodeAfter = (*pSelectedTeam)[0];
-		break;
-
-	case VirtualCode_2:
-		selectedCharacterCodeAfter = (*pSelectedTeam)[1];
-		break;
-
-	case VirtualCode_3:
-		selectedCharacterCodeAfter = (*pSelectedTeam)[2];
-		break;
-
-	case VirtualCode_4:
-		selectedCharacterCodeAfter = (*pSelectedTeam)[3];
-		break;
-	}
-
-	switch(selectedCharacterCodeAfter){
-	case SelectedCharacter_Keqing:
-		keqingDown(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter_Diluke:
-		dilukeDown(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_E_A:
-	case SelectedCharacter2_E_A:
-	case SelectedCharacter3_E_A:
-	case SelectedCharacter4_E_A:
-		E_A_Down(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_LongE:
-	case SelectedCharacter2_LongE:
-	case SelectedCharacter3_LongE:
-	case SelectedCharacter4_LongE:
-		longE_Down(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_Q_E:
-	case SelectedCharacter2_Q_E:
-	case SelectedCharacter3_Q_E:
-	case SelectedCharacter4_Q_E:
-		Q_E_Down(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_E_Q:
-	case SelectedCharacter2_E_Q:
-	case SelectedCharacter3_E_Q:
-	case SelectedCharacter4_E_Q:
-		E_Q_Down(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter_Keli:
-		keliDown(selectedCharacterCodeAfter);
-		break;
-	}
-
-	selectedCharacterCodeBefore = selectedCharacterCodeAfter;
-}
-
-void keyHoldCallback(unsigned char virtualCode){
-	switch(selectedCharacterCodeAfter){
-	case SelectedCharacter_Keqing:
-		keqingHold(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter_Diluke:
-		dilukeHold(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_E_A:
-	case SelectedCharacter2_E_A:
-	case SelectedCharacter3_E_A:
-	case SelectedCharacter4_E_A:
-		E_A_Hold(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_LongE:
-	case SelectedCharacter2_LongE:
-	case SelectedCharacter3_LongE:
-	case SelectedCharacter4_LongE:
-		longE_Hold(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_Q_E:
-	case SelectedCharacter2_Q_E:
-	case SelectedCharacter3_Q_E:
-	case SelectedCharacter4_Q_E:
-		Q_E_Hold(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_E_Q:
-	case SelectedCharacter2_E_Q:
-	case SelectedCharacter3_E_Q:
-	case SelectedCharacter4_E_Q:
-		E_Q_Hold(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter_Keli:
-		keliHold(selectedCharacterCodeAfter);
-		break;
-	}
-}
-
-void keyUpCallback(unsigned char virtualCode){
-	switch(selectedCharacterCodeAfter){
-	case SelectedCharacter_Keqing:
-		keqingUp(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter_Diluke:
-		dilukeUp(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_E_A:
-	case SelectedCharacter2_E_A:
-	case SelectedCharacter3_E_A:
-	case SelectedCharacter4_E_A:
-		E_A_Up(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_LongE:
-	case SelectedCharacter2_LongE:
-	case SelectedCharacter3_LongE:
-	case SelectedCharacter4_LongE:
-		longE_Up(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_Q_E:
-	case SelectedCharacter2_Q_E:
-	case SelectedCharacter3_Q_E:
-	case SelectedCharacter4_Q_E:
-		Q_E_Up(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter1_E_Q:
-	case SelectedCharacter2_E_Q:
-	case SelectedCharacter3_E_Q:
-	case SelectedCharacter4_E_Q:
-		E_Q_Up(selectedCharacterCodeAfter);
-		break;
-
-	case SelectedCharacter_Keli:
-		keliUp(selectedCharacterCodeAfter);
-		break;
 	}
 }
 
@@ -385,8 +233,6 @@ void F9_to_F12_KeyUpCallback(unsigned char virtualCode){
 	}
 	printSelectedCode();
 }
-
-
 
 
 void printCode(){
