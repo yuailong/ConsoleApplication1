@@ -20,8 +20,8 @@ DWORD keqing_MouseUp_Time = 0;
 void keqingDown(int selectedCharacterCodeAfter){
 	if(selectedCharacterCodeBefore != selectedCharacterCodeAfter){
 		changeKeqingTime = timeGetTime();
+		keqingBuzhou = 1;
 	}
-	keqingBuzhou = 1;
 }
 
 void keqingHold(int selectedCharacterCodeAfter){
