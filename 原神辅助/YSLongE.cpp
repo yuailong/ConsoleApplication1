@@ -27,13 +27,11 @@ void longE_Hold(int selectedCharacterCodeAfter) {
 		down_E_Time = nowTime;
 		long_E_A_Time = nowTime;
 		long_E_buzhou = 1;
-		printf("0");
 		break;
 
 	case 1:
 		if (nowTime - down_E_Time >= 200) {
 			long_E_buzhou = 2;
-			printf("1");
 		}
 		break;
 
@@ -42,7 +40,6 @@ void longE_Hold(int selectedCharacterCodeAfter) {
 			keybd_event(VirtualCode_E, ScanCode_E, KEYEVENTF_KEYUP, 0);//弹起E键
 			up_E_Time = nowTime;
 			long_E_buzhou = 3;
-			printf("2");
 			break;
 		}
 
@@ -50,14 +47,12 @@ void longE_Hold(int selectedCharacterCodeAfter) {
 			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);//按下鼠标左键
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);//松开鼠标左键
 			long_E_A_Time = nowTime;
-			printf("2-");
 		}
 		break;
 
 	case 3:
 		if (nowTime - up_E_Time >= 100) {
 			long_E_buzhou = 0;
-			printf("3");
 		}
 		break;
 	}
