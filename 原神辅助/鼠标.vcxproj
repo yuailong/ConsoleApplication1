@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="HotKeyStrategy1.cpp" />
     <ClCompile Include="HotKeyStrategy2.cpp" />
+    <ClCompile Include="YSWinApi.cpp" />
     <ClCompile Include="YSDengLongJian.cpp" />
     <ClCompile Include="YSDiluke.cpp" />
     <ClCompile Include="YSHotKey.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="YSKeli.h" />
     <ClInclude Include="YSKeqing.h" />
     <ClInclude Include="YSLongE.h" />
+    <ClInclude Include="YSWinApi.h" />
     <ClInclude Include="YS_E_A.h" />
     <ClInclude Include="YS_E_Q.h" />
     <ClInclude Include="YS_Q_E.h" />

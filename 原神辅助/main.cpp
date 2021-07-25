@@ -7,6 +7,7 @@
 #include "HotKeyStrategy1.h"
 #include "HotKeyStrategy2.h"
 #include "YSDengLongJian.h"
+#include "YSWinApi.h"
 #pragma comment(lib, "Winmm.lib")
 
 
@@ -48,6 +49,8 @@ void printCode();
 void printSelectedCode();
 
 int main() {
+	getModuleAbsolutePath();
+
 	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n------------------------------------------------\n");
 	printCode();
 	printf("已选择一队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
