@@ -1,3 +1,5 @@
 #pragma once
+#include <iostream>
+#include <string.h>
 
-void getModuleAbsolutePath();
+std::wstring* getModuleDirectory();
