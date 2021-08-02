@@ -50,6 +50,7 @@ void printSelectedCode();
 
 int main() {
 	getModuleAbsolutePath();
+	return 0;
 
 	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n------------------------------------------------\n");
 	printCode();
