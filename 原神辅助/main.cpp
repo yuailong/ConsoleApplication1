@@ -12,7 +12,6 @@
 
 
 DWORD changeDelay = 300; //切换硬直时间
-bool isNeedModifyTeam = 0;//是否需要修改队员
 int selectedCharacterCodeBefore = SelectedCharacter1_E_A;
 int selectedCharacterCodeAfter = SelectedCharacter1_E_A;
 int team1[4] = { SelectedCharacter1_LongE, SelectedCharacter_Keqing, SelectedCharacter3_E_A, SelectedCharacter_Youla };
@@ -47,11 +46,10 @@ void F9_to_F12_KeyUpCallback(unsigned char virtualCode);
 
 void printCode();
 void printSelectedCode();
+void readSettingFile();
 
 int main() {
-	getModuleDirectory();
-	return 0;
-
+	readSettingFile();
 	printf("F8开关，F9一队(默认)，F10二队，F11三队，F12四队\n------------------------------------------------\n");
 	printCode();
 	printf("已选择一队:%d,%d,%d,%d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
@@ -189,28 +187,9 @@ int main() {
 }
 
 void F8_KeyUpCallback(unsigned char virtualCode) {
-	isNeedModifyTeam = !isNeedModifyTeam;
-	if (isNeedModifyTeam) {
-		printCode();
-		printf("修改4个队员的代码，用空格键分隔：");
-		fflush(stdin);//将输入缓冲区清空
-		int a = 0;
-		int b = 0;
-		int c = 0;
-		int d = 0;
-		scanf_s("%d %d %d %d", &a, &b, &c, &d);
-		if (a && b && c && d) {
-			(*pSelectedTeam)[0] = a;
-			(*pSelectedTeam)[1] = b;
-			(*pSelectedTeam)[2] = c;
-			(*pSelectedTeam)[3] = d;
-			printf("已选择%d,%d,%d,%d\n--------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
-		}
-		else {
-			printf("没修改\n--------------------------------------------------\n");
-		}
-		isNeedModifyTeam = 0;
-	}
+	readSettingFile();
+	printCode();
+	printf("已选择%d,%d,%d,%d\n--------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
 }
 
 void F9_to_F12_KeyUpCallback(unsigned char virtualCode) {
@@ -269,4 +248,39 @@ void printSelectedCode() {
 	printf("%d, %d, %d, %d\n------------------------------------------------\n", (*pSelectedTeam)[0], (*pSelectedTeam)[1], (*pSelectedTeam)[2], (*pSelectedTeam)[3]);
 }
 
+void readSettingFile() {
+	std::wstring* pPath = getModuleDirectory();
+	std::wstring path2 = pPath->append(L"setting.ini");
+	wchar_t* pPath2 = &(path2.front());
+	int isExist = GetPrivateProfileInt(L"程序", L"是否运行过", -1, pPath2);
+	wchar_t appName[3];
+	wchar_t keyName[4];
+	wchar_t characterCode[5];
+	int* pTeam[4];
+	pTeam[0] = (int*)team1;
+	pTeam[1] = (int*)team2;
+	pTeam[2] = (int*)team3;
+	pTeam[3] = (int*)team4;
+	if (isExist == -1) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				swprintf(appName, 3, L"%d队", i + 1);
+				swprintf(keyName, 4, L"%d号位", j + 1);
+				swprintf(characterCode, 5, L"%d", ((int*)(pTeam[i]))[j]);
+				WritePrivateProfileString(appName, keyName, characterCode, pPath2);
+			}
+		}
+		WritePrivateProfileString(L"程序", L"是否运行过", L"1", pPath2);
+	}
+	else {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				swprintf(appName, 3, L"%d队", i + 1);
+				swprintf(keyName, 4, L"%d号位", j + 1);
+				swprintf(characterCode, 5, L"%d", ((int*)(pTeam[i]))[j]);
+				((int*)(pTeam[i]))[j] = GetPrivateProfileInt(appName, keyName, 0, pPath2);
+			}
+		}
+	}
+}
 
